@@ -15,9 +15,10 @@ const roleSchema=new mongoose.Schema({
     isBlocked: {type: Boolean,default: false,},
     user:[
         {
-            type:mongoose.Schema.Types.ObjectId,
+            type:mongoose.Schema.Types.ObjectId || null,
             ref:'User',
-            required:true
+            required:true,
+            default:null
         }
     ]
 },{timestamps:true})

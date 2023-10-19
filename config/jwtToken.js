@@ -1,7 +1,7 @@
 const jwt=require('jsonwebtoken');
 const { readPrivateKey } = require('../src/api');
 
-const generateToken=(payload,expired)=>{
+/*const generateToken=(payload,expired)=>{
 
     let privateKey = readPrivateKey()
     if(!privateKey){
@@ -15,10 +15,17 @@ const generateToken=(payload,expired)=>{
         issuer: "http://localhost:5000",
         audience: "http://localhost:5000",
         expiresIn: expired,
-        subject: payload.id,
+        subject: payload,
         jwtid: `${(Math.floor(Date.now))}`
     }
     return jwt.sign(payload,privateKey, jwtOptions);
+}*/
+
+const generateToken=(payload,expired)=>{
+    return jwt.sign({payload},process.env.SECRET_KEY_TOKEN,{
+         expiresIn:expired
+    })
+
 }
 
 module.exports={

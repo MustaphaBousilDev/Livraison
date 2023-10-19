@@ -49,7 +49,9 @@ const userSchema=new mongoose.Schema({
             {
                     type:mongoose.Schema.Types.ObjectId,
                     ref:'Role',
-                    required:true
+                    required:true,
+                    //default is _id of role
+                    default:"6530e3c6b66fead76cb05923"
             }
      ],
      isBlocked: {type: Boolean,default: false,},
@@ -57,7 +59,8 @@ const userSchema=new mongoose.Schema({
      search:[
           {
                 type:mongoose.Schema.Types.ObjectId,
-                ref:'Search'
+                ref:'Search',
+                default:null
           },
      ],
      refreshToken: {type: String,},
