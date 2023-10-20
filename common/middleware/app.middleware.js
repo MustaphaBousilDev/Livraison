@@ -32,7 +32,6 @@ exports.validateToken = async (req,res,next) => {
     //Verify the token 
     try {
         let tokenInfo = await jwt.verify(token, publicKey);
-        console.log(tokenInfo)
         // Check if the token subject matches the user information to make sure it is the correct token.
         // In case of real system, this information will be compared with the information in database.
         if(tokenInfo.id !== user.userId) {

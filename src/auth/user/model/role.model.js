@@ -20,7 +20,7 @@ const roleSchema=new mongoose.Schema({
             required:true,
             default:null
         }
-    ]
+    ],
 },{timestamps:true})
 
 module.exports=mongoose.model('Role',roleSchema)

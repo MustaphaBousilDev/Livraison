@@ -12,10 +12,8 @@ const storage = multer.diskStorage({
 const fileFilter = (req, file, callback) => {
      //reject a file
      if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' || file.mimetype === 'image/jpg') {
-          console.log('succees from multer about extention img')
           callback(null, true);
      } else {
-          console.log('fucking failed  from multer about extention img')
           callback({message:'Unsupported File Format'}, false);
      }
 }

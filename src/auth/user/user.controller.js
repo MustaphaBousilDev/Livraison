@@ -116,33 +116,7 @@ const updatePassword=asyncHandler(async (req,res)=>{
     }
 })
 
-//activate account 
-const activeAccount=asyncHandler(async (req,res)=>{
-    try {
-         const validUser = req.user.id;
-         const validateFirst=req.user.first_name
-         const {token}=req.body 
-         //console.log(token)
-         const user=jwt.verify(token,process.env.SECRET_KEY_TOKEN)
-         //console.log('fucking user')
-         console.log(user.payload.id)
-         const check=await User.findById(user.payload.id)
-         console.log(check)
-         if (validUser !== user.payload.id) {
-              return res.status(400).json({
-                message: "You don't have the authorization to complete this operation.",
-              });
-         }
-         if(check.verified==true){
-              res.status(400).json({message:"this email is alrealy activated"})
-         }else{
-              await User.findByIdAndUpdate(user.payload.id,{verified:true})
-              return res.status(200).json({message:"success verifiad this email"})
-         }
-    }catch(error){
-         res.status(500).json({message:error.message})
-    }
-})
+
 
 //reset password 
 const resetPassword = asyncHandler(async (req, res) => {

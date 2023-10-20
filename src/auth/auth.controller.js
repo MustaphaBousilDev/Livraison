@@ -1,8 +1,9 @@
 const jwt=require('jsonwebtoken')
 const {generateToken}=require('../../config/jwtToken')
 const User=require('./user/model/user.model')
-const {HTML_TEMPLATE} = require('../../helper/mail-template');
 const sendMails = require('../../helper/mail');
+const Code=require('./user/model/code.model')
+const {readPublicKey} = require('../../src/api')
 const {
     EmailValidator,
     PasswordValidator,
@@ -15,7 +16,6 @@ const {
 const bcrypt=require('bcryptjs')
 refreshtoken=require('../../config/refreshToken')
 const validateMongoDbId = require('../../helper/validateMongoDB')
-const {sendVerificationEmail}=require('../../helper/mailer')
 const asyncHandler=require('express-async-handler')
 const { error_json, success_json } = require('../../helper/helper');
 
@@ -71,47 +71,34 @@ getAccessToken = (req,res,next) => {
 const createUser=asyncHandler(async (req,res)=>{
     const {username,email,password,picture}=req.body
     const emailVerify = await EmailValidator(email)
-    const check=await User.findOne(
-     {email:email}
-    )
+    const check=await User.findOne({email:email})
     if(check) return res.status(400).json({msg:'This email is already exists'})
     const validPassword=await PasswordValidator(password)
     if(!LengthValidator(username,6,12)) return res.status(400).json({msg:'username must be between 6 and 12 characters'})
     const salt=await bcrypt.genSaltSync(10)
     const cryptePassword=await bcrypt.hashSync(password,salt)
-    console.log('after cryot ')
-    const user=new User(
-         {
-          username,
-          email,
-          password:cryptePassword,
-          picture})
+    const user=new User({username,email,password:cryptePassword,picture})
     user.save()
          .then((saveUser)=>{
-              console.log('start verification email') 
-              console.log(saveUser)
-              const emailVerificationToken=generateToken({id:saveUser._id.toString()},"30m")
-              //console.log('token of email verification::==>',emailVerificationToken)
-              const url=`${process.env.BASE_URL}/activate/${emailVerificationToken}`
-              //sendVerificationEmail(saveUser.email,saveUser.username,url)
-              let mailOptions = {
-               from: 'AlloMedia.livraieon@media.com',
-               to: req.body.email,
-               subject: 'Account activation link',
-               text: `Hello ${req.body.username}`,
-               html: `<h3> Please click on the link to activate your account </h3>
-               <a href="${url}">Activate your account</a>`,
+               const emailVerificationToken=generateToken({id:saveUser._id.toString()},"30m")
+               const url=`${process.env.BASE_URL}/activate/${emailVerificationToken}`
+               let mailOptions = {
+                    from: 'AlloMedia.livraieon@media.com',
+                    to: req.body.email,
+                    subject: 'Account activation link',
+                    text: `Hello ${req.body.username}`,
+                    html: `<h3> Please click on the link to activate your account </h3>
+                    <a href="${url}">Activate your account</a>`,
                };
                sendMails(mailOptions)
-              const token=generateToken({id:saveUser._id.toString()},"7d")
-              res.status(200).json({
-              success:true,
-              saveUser,
-              token:token,
-              message:'Register Success , please activate your email'
-         })})
-         .catch((error)=>{res.status(400).json({msg:error.message})})
-         
+               const token=generateToken({id:saveUser._id.toString()},"7d")
+               res.status(201).json({
+                    success:true,
+                    saveUser,
+                    message:'Register Success , please activate your email',
+               })
+          })
+          .catch((error)=>{res.status(400).json({msg:error.message})})
 }) 
 const login=asyncHandler(async (req,res)=>{
     const {email,password}=req.body
@@ -128,7 +115,7 @@ const login=asyncHandler(async (req,res)=>{
          await findUser.incrementLoginCount();
 
          // secure true to allow https only
-         res.cookie("refreshToken",refreshToken,{
+         res.cookie("token",refreshToken,{
               httpOnly:true, 
               sameSite:'strict',
               secure:false,
@@ -152,13 +139,9 @@ const login=asyncHandler(async (req,res)=>{
 //handle refresh token 
 const handleRefreshTokens = asyncHandler(async (req, res) => {
     const cookie = req.cookies;
-    console.log('fuck the goods')
-    console.log(cookie)
     if (!cookie?.refreshToken) throw new Error("No Refresh Token in Cookies");
     const refreshToken = cookie.refreshToken;
-    console.log('refreshToken:',refreshToken)
     const user = await User.findOne({ refreshToken });
-    console.log(user)
     if (!user) throw new Error(" No Refresh token present in db or not matched");
     
     jwt.verify(refreshToken, process.env.SECRET_KEY_TOKEN, (err, decoded) => {
@@ -205,7 +188,6 @@ const loginAdmin=asyncHandler(async (req,res)=>{
 //logout 
 const logOut=asyncHandler(async (req,res)=>{
     const cookie=req.cookies 
-    console.log(cookie)
     if(!cookie?.refreshToken) throw new Error("No Refresh Token in Cookies")
     const refreshToken=cookie.refreshToken 
     const user=await User.findOne({refreshToken})
@@ -235,6 +217,82 @@ const LoginInsperation=asyncHandler(async (req,res)=>{
           return success_json(200, token);
 
 })
+//activate account 
+const activeAccount=asyncHandler(async (req,res)=>{
+     try {
+          const {token}=req.params
+          let publicKey = readPublicKey()
+          const user=jwt.verify(token,publicKey)
+          const check=await User.findById(user.payload.id)
+          /*if (check) {
+               return res.status(400).json({
+                 message: "You don't have the authorization to complete this operation.",
+               });
+          }*/
+          if(check.verified==true){
+               res.status(400).json({message:"this email is alrealy activated"})
+          }else{
+               await User.findByIdAndUpdate(user.payload.id,{verified:true})
+               //generate new token
+               const token=generateToken({id:user.payload.id},"7d")
+               //store token in cookie
+               res.cookie("token",token,{
+                    httpOnly:true , 
+                    secure:true 
+               }) 
+               res.status(200).json({message:"Your account has been activated"})
+          }
+     }catch(error){
+          res.status(500).json({message:error.message})
+     }
+ })
+
+const resetPassword = asyncHandler(async (req, res) => {
+     try {
+          const { email } = req.body;
+          const user = await User.findOne({ email }).select("-password");
+          await Code.findOneAndRemove({ user: user._id });
+          const code = generateCode(5);
+          const savedCode = await new Code({
+               code,
+               user: user._id,
+          }).save();
+          sendResetCode(user.email, user.first_name, code);
+          return res.status(200).json({
+               message: "Email reset code has been sent to your email",
+          });
+          } catch (error) {
+          res.status(500).json({ message: error.message });
+          }
+});
+//validate reset password 
+const validateResetPassword=asyncHandler(async (req,res)=>{
+     try {
+          const { email, code } = req.body;
+          const user = await User.findOne({ email });
+          const Dbcode = await Code.findOne({ user: user._id });
+          if (Dbcode.code !== code) {
+            return res.status(400).json({
+              message: "Verification code is wrong..",
+            });
+          }
+          return res.status(200).json({ message: "ok" });
+     } catch (error) {
+     res.status(500).json({ message: error.message });
+     }
+})
+
+//change password 
+const changePassword=asyncHandler(async (req,res)=>{
+     const { email, password } = req.body;
+     const cryptedPassword = await bcrypt.hash(password, 12);
+     await User.findOneAndUpdate(
+     { email },
+     {password: cryptedPassword,}
+     );
+     return res.status(200).json({ message: "ok" });
+})
+ 
 
 module.exports = {  
      getAllItems,
@@ -243,5 +301,9 @@ module.exports = {
      login,
      handleRefreshTokens,
      loginAdmin,
-     logOut
+     logOut,
+     activeAccount,
+     resetPassword,
+     validateResetPassword,
+     changePassword
      }

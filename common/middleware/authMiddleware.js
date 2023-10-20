@@ -1,11 +1,11 @@
 const User=require('../model/userModel')
 const asyncHandler=require('express-async-handler')
 const jwt=require('jsonwebtoken')
-
+const {readPublicKey} = require('../../src/api')
 const authMiddleware=asyncHandler(async(req,res,next)=>{
      let token 
-     if(req?.headers?.authorization?.startsWith('Bearer')){
-          token=req.headers.authorization.split(' ')[1] 
+     if(req?.cookies?.token){
+          token=req.cookies.token
           try {
                if(!token) {
                     return res.status(401).json({
@@ -14,9 +14,25 @@ const authMiddleware=asyncHandler(async(req,res,next)=>{
                     })
                }
                //verify token
-               
-               const decoded=jwt.verify(token,process.env.SECRET_KEY_TOKEN)
+               let publicKey = readPublicKey()
+               if(!publicKey) {
+                    res.status(500).json({
+                         success: false,
+                         message: "Internal Server Error. Cannot read the public key"
+                    });
+                    return
+               }
+               let tokenInfo = await jwt.verify(token, publicKey);
                const user=await User.findById(decoded.payload.id)
+               if(tokenInfo.id !== user._id.toString()) {
+                    res.status(403).json({
+                        success: false,
+                        message: "Access Denied to the resource!"
+                    });
+                    return
+                }
+                req.user = user;
+               
                if(!user) throw new Error('No user found with this id')
                req.user=user
                next()
@@ -51,15 +67,5 @@ const isEmployee=asyncHandler(async(req,res,next)=>{
      }
 })
 
-const isGood=asyncHandler(async(req,res,next)=>{
-     if(req.user && req.user.role==='admin'){
-          next() 
-     }else{
-          res.status(401)
-          throw new Error('Not authorized because you are not an good')
-     }
-})
 
-
-
-module.exports={authMiddleware,isAdmin,isGood}
+module.exports={authMiddleware,isAdmin}
