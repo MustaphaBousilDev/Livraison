@@ -7,8 +7,8 @@ async function sendMails(mailOptions){
             host: 'smtp.ethereal.email',
             port: 587,
             auth: {
-                user:'rigoberto.gislason@ethereal.email',
-                pass: '9z6KzbUQPjCSS9jEnW'
+                user:'elenora.bosco45@ethereal.email',
+                pass: 'u2jW9d5ZqmuDEe2pnM'
             }
         });
         // define email options

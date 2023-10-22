@@ -3,6 +3,7 @@ const {generateToken}=require('../../config/jwtToken')
 const User=require('./user/model/user.model')
 const sendMails = require('../../helper/mail');
 const Code=require('./user/model/code.model')
+const generateCode=require('../../helper/generateCode')   
 const {readPublicKey} = require('../../src/api')
 const {
     EmailValidator,
@@ -14,7 +15,7 @@ const {
     validateString
 } = require('../../helper/validations');
 const bcrypt=require('bcryptjs')
-refreshtoken=require('../../config/refreshToken')
+const {generateRefrehToken}=require('../../config/refreshToken')
 const validateMongoDbId = require('../../helper/validateMongoDB')
 const asyncHandler=require('express-async-handler')
 const { error_json, success_json } = require('../../helper/helper');
@@ -69,50 +70,68 @@ getAccessToken = (req,res,next) => {
     });
 }
 const createUser=asyncHandler(async (req,res)=>{
-    const {username,email,password,picture}=req.body
-    const emailVerify = await EmailValidator(email)
-    const check=await User.findOne({email:email})
-    if(check) return res.status(400).json({msg:'This email is already exists'})
-    const validPassword=await PasswordValidator(password)
-    if(!LengthValidator(username,6,12)) return res.status(400).json({msg:'username must be between 6 and 12 characters'})
-    const salt=await bcrypt.genSaltSync(10)
-    const cryptePassword=await bcrypt.hashSync(password,salt)
-    const user=new User({username,email,password:cryptePassword,picture})
-    user.save()
-         .then((saveUser)=>{
-               const emailVerificationToken=generateToken({id:saveUser._id.toString()},"30m")
-               const url=`${process.env.BASE_URL}/activate/${emailVerificationToken}`
-               let mailOptions = {
-                    from: 'AlloMedia.livraieon@media.com',
-                    to: req.body.email,
-                    subject: 'Account activation link',
-                    text: `Hello ${req.body.username}`,
-                    html: `<h3> Please click on the link to activate your account </h3>
-                    <a href="${url}">Activate your account</a>`,
-               };
-               sendMails(mailOptions)
-               const token=generateToken({id:saveUser._id.toString()},"7d")
-               res.status(201).json({
-                    success:true,
-                    saveUser,
-                    message:'Register Success , please activate your email',
-               })
-          })
-          .catch((error)=>{res.status(400).json({msg:error.message})})
-}) 
+     const {username,email,password,picture}=req.body
+     //const emailVerify = await EmailValidator(email)
+     const check=await User.findOne({email:email})
+     if(check) return res.status(400).json({msg:'This email is already exists'})
+     //const validPassword=await PasswordValidator(password)
+     if(!LengthValidator(username,6,12)) return res.status(400).json({msg:'username must be between 6 and 12 characters'})
+     const salt=await bcrypt.genSaltSync(10)
+     const cryptePassword=await bcrypt.hashSync(password,salt)
+     //const user=new User({username,email,password:cryptePassword,picture})
+     const user = await User.create({
+      username,
+      email,
+      password:cryptePassword,
+      picture,
+    }).then((saveUser)=>{
+     console.log('tototototo')
+     console.log(saveUser)
+                const emailVerificationToken=generateToken({id:saveUser._id.toString()},"30m")
+                const url=`${process.env.PORT}/api/v1/activate/${emailVerificationToken}`
+                let mailOptions = {
+                     from: 'AlloMedia.livraieon@media.com',
+                     to: req.body.email,
+                     subject: 'Account activation link',
+                     text: `Hello ${req.body.username}`,
+                     html: `<h3> Please click on the link to activate your account </h3>
+                     <a href="${url}">Activate your account</a>`,
+                };
+                sendMails(mailOptions)
+                const token=generateToken({id:saveUser._id.toString()},"7d")
+                res.status(201).json({
+                     success:true,
+                     saveUser,
+                     message:'Register Success , please activate your email',
+                })
+           })
+           .catch((error)=>{res.status(400).json({msg:error.message})})
+ })
 const login=asyncHandler(async (req,res)=>{
     const {email,password}=req.body
+    console.log(email,password)
     const findUser=await User.findOne({email:email})
-    if(findUser && await findUser.isPasswordMatch(password,findUser.password)){
-         const refreshToken=await refreshTokens(findUser?._id)
+    console.log('find user')
+    console.log(findUser)
+    console.log(findUser._id)
+    if(findUser && await bcrypt.compare(password,findUser.password)){
+         let id_t=findUser.id
+         const refreshToken=await generateRefrehToken({id:findUser.id},"30m")
+
+         console.log('coming here')
          const updateUser=await User.findByIdAndUpdate(
-              findUser.id,
-              {refreshToken:refreshToken},
+              findUser._id,
+              {
+               refreshToken:refreshToken,
+               loginCount:findUser.loginCount+1
+          },
               {new:true}
          )
 
          // Increments the login count for the user
-         await findUser.incrementLoginCount();
+          await findUser.incrementLoginCount();
+
+         
 
          // secure true to allow https only
          res.cookie("token",refreshToken,{
@@ -121,16 +140,12 @@ const login=asyncHandler(async (req,res)=>{
               secure:false,
               maxAge:72 * 60 * 60 * 1000,
          })
-         res.status(200).json({
+         res.status(201).json({
               _id:findUser?._id,
-              first_name:findUser?.first_name,
-              last_name:findUser?.last_name,
               username:findUser?.username,
               email:findUser?.email,
-              mobile:findUser?.mobile,
               picture:findUser?.picture,
-              role:findUser?.role,
-              token:generateToken({id:findUser._id},"3d")
+              //token:generateRefrehToken({id:findUser._id.toString()},"3d")
          })
     }else{
          return res.status(401).json({message:'Invalid email or password'})
@@ -188,34 +203,25 @@ const loginAdmin=asyncHandler(async (req,res)=>{
 //logout 
 const logOut=asyncHandler(async (req,res)=>{
     const cookie=req.cookies 
-    if(!cookie?.refreshToken) throw new Error("No Refresh Token in Cookies")
-    const refreshToken=cookie.refreshToken 
+    if(!cookie?.token) throw new Error("No Refresh Token in Cookies")
+    const refreshToken=cookie.token 
+    console.log(refreshToken)
     const user=await User.findOne({refreshToken})
     if(!user){
-         res.clearCookie('refreshToken',{
+         res.clearCookie('token',{
               httpOnly:true , 
               secure:true 
          })
          return res.sendStatus(204)//forbidden 
     }
-    await User.findOneAndUpdate(refreshToken,{
-         refreshToken:"",
-    })
-    res.clearCookie("refreshToken",{
+    //find user and update refresh token
+    User.findByIdAndUpdate(user._id,{refreshToken:""})
+    res.clearCookie("token",{
          httpOnly:true , 
          secure:true 
     })
     //204 is mean no content(so you cant add message to it)
-    res.sendStatus(204)
-})
-//login insperation
-const LoginInsperation=asyncHandler(async (req,res)=>{
-     const { error } = loginValidation(credentials);
-          if (error)
-            return error_json(400, error.details[0].message);
-
-          return success_json(200, token);
-
+    res.sendStatus(201).json({message:"Logout Success"})
 })
 //activate account 
 const activeAccount=asyncHandler(async (req,res)=>{
@@ -257,7 +263,16 @@ const resetPassword = asyncHandler(async (req, res) => {
                code,
                user: user._id,
           }).save();
-          sendResetCode(user.email, user.first_name, code);
+          const url = `${process.env.PORT}/api/v1/changePassword/${user._id}`;
+          let mailOptions = {
+               from: 'AlloMedia.livraieon@media.com',
+               to: user.email,
+               subject: 'Code change password',
+               text: `Code `,
+               html: `<h3> please check code <b>${code}</b></h3>
+               <a href="${url}">change password link</a>`,
+          };
+          sendMails(mailOptions)
           return res.status(200).json({
                message: "Email reset code has been sent to your email",
           });
@@ -269,13 +284,19 @@ const resetPassword = asyncHandler(async (req, res) => {
 const validateResetPassword=asyncHandler(async (req,res)=>{
      try {
           const { email, code } = req.body;
+          const {id}=req.params
           const user = await User.findOne({ email });
           const Dbcode = await Code.findOne({ user: user._id });
           if (Dbcode.code !== code) {
+            //check date expired from model code
+            
             return res.status(400).json({
-              message: "Verification code is wrong..",
-            });
+               message: "Verification code is wrong..",
+             });
           }
+          /*if(Dbcode.expireA < Date.now()){
+               return res.status(400).json({ message: "code expired" });
+          }*/
           return res.status(200).json({ message: "ok" });
      } catch (error) {
      res.status(500).json({ message: error.message });
@@ -306,4 +327,4 @@ module.exports = {
      resetPassword,
      validateResetPassword,
      changePassword
-     }
+}

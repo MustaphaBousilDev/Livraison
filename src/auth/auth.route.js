@@ -28,7 +28,8 @@ router.post('/login-admin',loginAdmin)
 router.get('/activate/:token',activeAccount)
 //router.post('/sendVerification',sendVerification)
 router.post('/sendResetPasswordCode',resetPassword)
+router.post('/validateResetPassword/:id',validateResetPassword)
 router.post('/changePassword',changePassword)
-router.post('/validateResetPassword',validateResetPassword)
+
 
 module.exports = router;

@@ -1,4 +1,4 @@
-const User=require('../model/userModel')
+const User=require('../../src/auth/user/model/user.model')
 const asyncHandler=require('express-async-handler')
 const jwt=require('jsonwebtoken')
 const {readPublicKey} = require('../../src/api')
@@ -30,10 +30,15 @@ const authMiddleware=asyncHandler(async(req,res,next)=>{
                         message: "Access Denied to the resource!"
                     });
                     return
-                }
-                req.user = user;
+               }
+               // req.user = user;
                
-               if(!user) throw new Error('No user found with this id')
+               if(!user) {
+                    res.status(404).json({
+                         success:false,
+                         message: "No user found with this id"
+                    })
+               }
                req.user=user
                next()
           } catch (error) {
@@ -43,8 +48,10 @@ const authMiddleware=asyncHandler(async(req,res,next)=>{
                })
           }
      }else{
-          res.status(401)
-          throw new Error('Not authorized,no token')
+          res.status(401).json({
+               success: false,
+               message: "Token Missing"
+          })
      }
 })
 

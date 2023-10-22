@@ -63,18 +63,23 @@ const userSchema=new mongoose.Schema({
                 default:null
           },
      ],
-     refreshToken: {type: String,},
+     refreshToken: {
+          type: String,
+          default: ""
+     },
      passwordChangedAt: Date,
      passwordResetToken: String,
      passwordResetExpires: Date,
 },{timestamps:true})
 
 userSchema.methods.isPasswordMatch=async function(enteredPassword){
+     console.log('fuckung entered password')
+     console.log(enteredPassword)
      return await bcrypt.compare(enteredPassword,this.password)
 }
 
 // Hash password before saving to database
-userSchema.pre('save', async function(next) {
+/*userSchema.pre('save', async function(next) {
      const user = this;
      if (user.isModified('password') || user.isNew) {
        try {
@@ -86,7 +91,7 @@ userSchema.pre('save', async function(next) {
      } else {
        return next();
      }
-});
+});*/
 
 // Compare password with hashed password in database
 userSchema.methods.comparePassword = function(password) {

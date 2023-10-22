@@ -15,7 +15,7 @@ const generateToken=(payload,expired)=>{
         issuer: "http://localhost:5000",
         audience: "http://localhost:5000",
         expiresIn: expired,
-        subject: payload.id,
+        subject: String(payload.id),
         jwtid: `${(Math.floor(Date.now))}`
     }
     return jwt.sign({payload},privateKey, jwtOptions);

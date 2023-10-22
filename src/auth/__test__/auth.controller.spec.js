@@ -1,13 +1,19 @@
-import { createUser, login } from "./authController";
-import bcrypt from "bcryptjs";
-import User from "../user/model/user.model";
-import { generateToken } from "../../../config/jwtToken";
+const { createUser, login } =require("../auth.controller");
+const bcrypt=require('bcryptjs');
+const User=require('../user/model/user.model');
+const {generateToken} = require('../../../config/jwtToken');
+const {
+    EmailValidator,PasswordValidator,
+} = require('../../../helper/validations');
+//const generate = require("../../../config/refreshToken");
+//refreshtoken=require('../../../config/refreshToken')
 
-jest.mock('../utils/helpers',()=>({
-    //mocking getJwtToken function
-    //"jwt_token" is the value that will be returned when getJwtToken is called
-    getJwtToken: jest.fn(()=>"jwt_token")
-}))
+
+
+beforeEach(() => {
+    // Reset all modules before each test
+    jest.resetModules();
+  });
 
 const mockRequest = ()=>{
     return {
@@ -46,116 +52,76 @@ afterEach(()=>{
 })
 
 
+
+//login
+
+describe('Login User',()=>{
+    it("should invalid password",async ()=>{
+        jest.spyOn(User,'findOne').mockResolvedValueOnce(true)
+        jest.spyOn(bcrypt,'compare').mockResolvedValueOnce(false)
+        const mockReq=(mockRequest().body={body:userLogin})
+        const mockRes=mockResponse()
+        await login(mockReq,mockRes)
+        expect(mockRes.status).toHaveBeenCalledWith(401)
+        expect(mockRes.json).toHaveBeenCalledWith({
+            message: "Invalid email or password",
+        })
+
+    })
+    it("should log in a user with valid credentials", async()=>{
+
+        jest.spyOn(bcrypt,'compare').mockResolvedValueOnce(true)
+        jest.spyOn(User,'findOne').mockResolvedValueOnce(true)
+        jest.spyOn(User,'findByIdAndUpdate').mockResolvedValueOnce(true)
+        // i want to mock  findUser.incrementLoginCount();
+        //jest.spyOn(User.ic,'findById').mockResolvedValueOnce(true)
+
+        const mockReq=(mockRequest().body={body:userLogin})
+        const mockRes=mockResponse()
+
+          await login(mockReq, mockRes)
+
+          expect(mockRes.status).toHaveBeenCalledWith(201);
+          expect(User.findOne).toHaveBeenCalledWith({email: userLogin.email})
+    })
+        
+})
+
+
+
 //register
 describe('Register User',()=>{
     it('should register a new user',async ()=>{
-        jest.spyOn(bcrypt,'hash').mockResolvedValueOnce('hashedPassword')
+        jest.spyOn(bcrypt,'hashSync').mockResolvedValueOnce('hashedPassword')
+        jest.spyOn(bcrypt,'genSaltSync').mockResolvedValueOnce('salt')
         jest.spyOn(User,'create').mockResolvedValueOnce(mockUser)
+        jest.spyOn(User,'findOne').mockResolvedValueOnce(null)
         const mockReq=mockRequest()
         const mockRes=mockResponse()
         await createUser(mockReq,mockRes)
 
         expect(mockRes.status).toHaveBeenCalledWith(201)
-        expect(bcrypt.hash).toHaveBeenCalledWith('123456789',10)
+        expect(bcrypt.hashSync).toHaveBeenCalledWith(mockReq.body.password,'salt')
+        expect(User.findOne).toHaveBeenCalledWith({email: mockReq.body.email})
         expect(User.create).toHaveBeenCalledWith({
-            username: "John Doe",
-            email: "mugi@gmail.com",
-            password: "hashedPassword"
+            username: mockReq.body.username,
+            email: mockReq.body.email,
+            password: 'hashedPassword',
+            picture: mockReq.body.picture,
         })
     })
 
-    it('should throw validation error',async ()=>{
-        const mockReq=mockRequest().body={body:{}}//empty body
-        const mockRes=mockResponse()
-
-        //console.log(mockReq)
-
-        await createUser(mockReq,mockRes)
-        expect(mockRes.status).toHaveBeenCalledWith(400)
-        expect(mockRes.json).toHaveBeenCalledWith({
-            error: "Please enter all values",
-        })
-    })
-
-
-    it('should throw duplicate email entered error',async ()=>{
-        jest.spyOn(bcrypt,'hash').mockResolvedValueOnce('hashedPassword')
-        jest.spyOn(User,'create').mockRejectedValueOnce({code: 11000})
-
+    it('should return error if email already exist',async ()=>{
+        //Resolvedvalue is a value that will be returned when the mocked function is called
+        jest.spyOn(User,'findOne').mockResolvedValueOnce(mockUser)
         const mockReq=mockRequest()
         const mockRes=mockResponse()
-
         await createUser(mockReq,mockRes)
 
         expect(mockRes.status).toHaveBeenCalledWith(400)
+        expect(User.findOne).toHaveBeenCalledWith({email: mockReq.body.email})
         expect(mockRes.json).toHaveBeenCalledWith({
-            error: "Duplicate email",
+            msg: 'This email is already exists',
         })
-    })
-})
-
-
-//login
-describe('Login User',()=>{
-    it('should throw missing email or password error',async ()=>{
-        const mockReq=mockRequest().body={body:{}}//empty body
-        const mockRes=mockResponse()
-
-        await login(mockReq,mockRes)
-
-        expect(mockRes.status).toHaveBeenCalledWith(400)
-        expect(mockRes.json).toHaveBeenCalledWith({
-            error: "Please enter email & Password",
-        })
-    })
-    //
-    it('should throw Invalid email  error',async ()=>{
-        jest.spyOn(User,'findOne').mockImplementationOnce(()=>({
-            select: jest.fn().mockResolvedValueOnce(null)
-        }))
-
-        const mockReq=(mockRequest().body={body:userLogin})
-        const mockRes=mockResponse()
-
-        await login(mockReq,mockRes)
-
-        expect(mockRes.status).toHaveBeenCalledWith(401)
-        expect(mockRes.json).toHaveBeenCalledWith({
-            error: "Invalid Email or Password",
-        })
-    })
-    it('should throw Invalid password  error',async ()=>{
-        jest.spyOn(User,'findOne').mockImplementationOnce(()=>({
-            select: jest.fn().mockResolvedValueOnce(mockUser),
-        }))
-
-        jest.spyOn(bcrypt,'compare').mockResolvedValueOnce(false)
-
-        const mockReq=(mockRequest().body={body:userLogin})
-        const mockRes=mockResponse()
-
-        await login(mockReq,mockRes)
-
-        expect(mockRes.status).toHaveBeenCalledWith(401)
-        expect(mockRes.json).toHaveBeenCalledWith({
-            error: "Invalid Email or Password",
-        })
-    })
-
-    it('valid login and create token',async ()=>{
-        jest.spyOn(User,'findOne').mockImplementationOnce(()=>({
-            select: jest.fn().mockResolvedValueOnce(mockUser)
-        }))
-
-        jest.spyOn(bcrypt,'compare').mockResolvedValueOnce(true)  
-        const mockReq=(mockRequest().body={body:userLogin})
-        const mockRes=mockResponse()  
-
-        await login(mockReq,mockRes)
-        expect(mockRes.status).toHaveBeenCalledWith(200)
-        expect(mockRes.json).toHaveBeenCalledWith({
-            token: "jwt_token",
-        })
-
     })
 })

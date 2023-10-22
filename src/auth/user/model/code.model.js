@@ -14,7 +14,7 @@ const codeSchema=new mongoose.Schema({
      expireAt: { 
         type: Date,// type is Date 
         default: Date.now, // default value is current time
-        expires: 300 // expires after 5 minutes
+        expires: 900 // expires after 5 minutes
     }
 })
 

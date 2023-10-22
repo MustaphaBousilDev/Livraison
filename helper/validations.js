@@ -19,6 +19,8 @@ const PasswordValidator=(password)=>{
     if(!check){
          throw new Error('password is not valid')
     }
+
+    return true
 }
 
 const LengthValidator=(text,min,max)=>{
