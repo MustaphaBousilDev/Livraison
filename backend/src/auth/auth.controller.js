@@ -79,9 +79,14 @@ const createUser=asyncHandler(async (req,res)=>{
      const salt=await bcrypt.genSaltSync(10)
      const cryptePassword=await bcrypt.hashSync(password,salt)
      //const user=new User({username,email,password:cryptePassword,picture})
+     //add role array i want to add role id '"6530e3c6b66fead76cb05923" '
+
      const user = await User.create({
       username,
       email,
+      role:"6530e3c6b66fead76cb05923",
+
+      
       password:cryptePassword,
       picture,
     }).then((saveUser)=>{

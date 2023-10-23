@@ -29,7 +29,6 @@ const userSchema=new mongoose.Schema({
           maxlength: [128, 'Password must be less than 128 characters long'],
           validate: {
                validator: function(value) {
-                 // Require at least one uppercase le tter, one lowercase letter, one special character and one number
                  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+={}[\]\\|:;'<>,.?/])[a-zA-Z\d!@#$%^&*()_\-+={}[\]\\|:;'<>,.?/]{8,}$/;
                  return regex.test(value);
                },
@@ -43,11 +42,15 @@ const userSchema=new mongoose.Schema({
      picture:{
           type:String,
           default:'https://res.cloudinary.com/dmhcnhtng/image/upload/v1643044376/avatars/default_pic_jeaybr.png',
-          trim:true 
+          trim:true ,
+          validator: (value) => {
+               // remove all spaces from string value
+               return validator.isAlpha(value.replace(/\s/g, ''));
+          },
      },
      role:[
             {
-                    type:mongoose.Schema.Types.ObjectId,
+                    type:String,
                     ref:'Role',
                     required:true,
                     //default is _id of role

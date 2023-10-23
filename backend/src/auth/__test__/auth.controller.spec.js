@@ -108,6 +108,7 @@ describe('Register User',()=>{
             email: mockReq.body.email,
             password: 'hashedPassword',
             picture: mockReq.body.picture,
+            role:"6530e3c6b66fead76cb05923",
         })
     })
 

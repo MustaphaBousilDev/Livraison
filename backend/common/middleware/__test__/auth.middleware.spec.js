@@ -66,11 +66,11 @@ describe('Authentication Middleware',()=>{
         );
       
         // Mock the User.findById to resolve with a mockUser
-        //jest.spyOn(User, 'findById').mockResolvedValueOnce({...mockUser});
+        jest.spyOn(User, 'findById').mockResolvedValueOnce(true);
 
         await authMiddleware(mockReq, mockRes, mockNext);
 
-        expect(mockNext).toHaveBeenCalled(1);
+        expect(mockNext).toHaveBeenCalled(true);
         });
       
 
