@@ -3,12 +3,15 @@ import videoBack from '../../assets/background.mp4'
 import  {useState} from 'react'
 import { Shadow} from '../shadow.jsx'
 import CustomInput from '../common/Input'
+
 import { FormButton,ButtonDefault } from '../common/Buttons'
 import { 
   AiOutlineMail,
   AiFillLock,
 } from 'react-icons/ai'
+import { GoogleLogin } from 'react-google-login'
 export const Login = () => {
+  const clientID='1090604505843-uq59rok8qc8jg41c7u218gtjfvtm2669.apps.googleusercontent.com'
   const [login, setLogin] = useState(true)
   const [signup,setSignup] = useState(false)
   const handleLogin=()=>{
@@ -18,6 +21,12 @@ export const Login = () => {
   const handleSignup=()=>{
     setSignup(true)
     setLogin(false)
+  }
+  const onSuccess=(res)=>{
+    console.log(res)
+  }
+  const onFailure=(res)=>{
+    console.log(res)
   }
   return (
     <>
@@ -68,6 +77,15 @@ export const Login = () => {
             <span className=' text-white'>or</span>
             <span className=' h-[1px] w-[49%] bg-white mt-1'></span>
           </div>
+          <GoogleLogin
+            clientId={clientID}
+            buttonText='Login by google'
+            onSuccess={onSuccess}
+            onFailure={onFailure}
+            cookiePolicy={'single_host_origin'}
+            isSignedIn={true}
+            className='w-[80%] ml-[10%]  text-gray-800 flex items-center justify-center'
+          />
         </form>
     </div>
     <Shadow className={`opacity-80`}/>
