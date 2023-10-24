@@ -1,8 +1,8 @@
 import './login.css'
-import videoBack from '../../assets/background.mp4'
 import  {useState} from 'react'
 import { Shadow} from '../shadow.jsx'
 import CustomInput from '../common/Input'
+import { Backgrounds as BackgroundVideo} from '../Backgrounds'
 
 import { FormButton,ButtonDefault } from '../common/Buttons'
 import { 
@@ -30,30 +30,18 @@ export const Login = () => {
   }
   return (
     <>
-    <div className='w-full h-screen'>
-          <video 
-            className=' w-full h-full object-cover'
-            src={videoBack} 
-            autoPlay 
-            loop 
-            muted 
-          />
-    </div>
-    <div className="
-      absolute z-[10000] w-[95%] sm:w-[80%] md:w-[60%] lg:w-[50%] 
-      xl:w-[38%] 2xl:w-[30%] h-[75%] bg-black top-[50%] 
-      left-[50%] translate-x-[-50%] translate-y-[-50%] flex 
-       p-3 py-5 flex-col opacity-70 rounded-md lg:rounded-2xl ">
-        <h3 className=" w-full text-white text-center inline-block text-5xl">livraison</h3>
+    <BackgroundVideo/>
+    <div className="modal-inscreption">
+        <h3 className=" w-full text-white text-center inline-block text-5xl">Mugiwara</h3>
         <div className="flex gap-[3%] my-3 p-1 w-[65%] mx-auto bg-gray-900 rounded-md">
           <ButtonDefault
             onClick={handleLogin}
-            className={`${login ? 'opacity-100' : 'opacity-60'}`}>
+            className={`${login ? 'opacity-100 border border-white' : 'opacity-50'}`}>
             login
           </ButtonDefault>
           <ButtonDefault
             onClick={handleSignup}
-            className={`${signup ? 'opacity-100' : 'opacity-60'}`}>
+            className={`${signup ? 'opacity-100 border border-white' : 'opacity-50'}`}>
             signup
           </ButtonDefault>
         </div>
