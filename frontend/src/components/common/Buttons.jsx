@@ -18,9 +18,26 @@ const FormButton = ({
       </div>
     )
 }
+/* Button Default */
+const ButtonDefault=({
+    children,
+    className,
+    onClick,
+})=>{
+    return (
+        <button
+        onClick={onClick}
+        className={`w-[48.5%] scale-100 transition active:scale-[.97]  py-3 
+        rounded-lg text-md text-white button__gradient  ${className}`}
+        >
+            {children}
+        </button>
+    )
+}
   
 export {
-    FormButton
+    FormButton,
+    ButtonDefault,
 }
 
 
@@ -28,4 +45,10 @@ export {
 FormButton.propTypes = {
     children: PropTypes.element, // You can specify the expected prop types
     className: PropTypes.string,
+};
+
+ButtonDefault.propTypes = {
+    children: PropTypes.element, // You can specify the expected prop types
+    className: PropTypes.string,
+    onClick: PropTypes.func,
 };

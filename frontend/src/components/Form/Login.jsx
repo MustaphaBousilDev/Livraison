@@ -3,7 +3,7 @@ import videoBack from '../../assets/background.mp4'
 import  {useState} from 'react'
 import { Shadow} from '../shadow.jsx'
 import CustomInput from '../common/Input'
-import { FormButton } from '../common/Buttons'
+import { FormButton,ButtonDefault } from '../common/Buttons'
 import { 
   AiOutlineMail,
   AiFillLock,
@@ -12,12 +12,12 @@ export const Login = () => {
   const [login, setLogin] = useState(true)
   const [signup,setSignup] = useState(false)
   const handleLogin=()=>{
-    setLogin(!login)
-    setSignup(!signup)
+    setLogin(true)
+    setSignup(false)
   }
   const handleSignup=()=>{
-    setSignup(!signup)
-    setLogin(!login)
+    setSignup(true)
+    setLogin(false)
   }
   return (
     <>
@@ -36,19 +36,17 @@ export const Login = () => {
       left-[50%] translate-x-[-50%] translate-y-[-50%] flex 
        p-3 py-5 flex-col opacity-70 rounded-md lg:rounded-2xl ">
         <h3 className=" w-full text-white text-center inline-block text-5xl">livraison</h3>
-        <div className="flex gap-[3%] my-3 p-1 w-[65%] mx-auto bg-white rounded-md">
-          <button 
+        <div className="flex gap-[3%] my-3 p-1 w-[65%] mx-auto bg-gray-900 rounded-md">
+          <ButtonDefault
             onClick={handleLogin}
-            className={`w-[48.5%] scale-100 transition active:scale-[.97]  py-3 
-            rounded-lg text-md text-white button__gradient  ${login ? 'opacity-100' : 'opacity-60'}`}>
+            className={`${login ? 'opacity-100' : 'opacity-60'}`}>
             login
-          </button>
-          <button 
+          </ButtonDefault>
+          <ButtonDefault
             onClick={handleSignup}
-            className={`w-[48.5%] scale-100 transition active:scale-[.97]  py-3 
-            rounded-lg text-md text-white  button__gradient ${signup ? 'opacity-100' : 'opacity-60'}`}>
+            className={`${signup ? 'opacity-100' : 'opacity-60'}`}>
             signup
-          </button>
+          </ButtonDefault>
         </div>
         <form className=' my-4'>
           <CustomInput 
