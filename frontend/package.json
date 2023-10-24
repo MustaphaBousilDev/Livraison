@@ -10,9 +10,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.0.5",
+    "@tanstack/react-query-devtools": "^5.0.5",
+    "axios": "^1.5.1",
+    "dayjs": "^1.11.10",
     "prop-types": "^15.8.1",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-hook-form": "^7.47.0",
+    "react-icons": "^4.11.0",
+    "react-router-dom": "^6.17.0",
+    "tailwind-scrollbar": "^3.0.5",
+    "tailwind-scrollbar-hide": "^1.1.7"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",
