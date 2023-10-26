@@ -18,7 +18,7 @@ const CustomInput = ({
     return (
         <>
             <div className=''>
-                <div className='w-[80%] mx-auto relative my-5'>
+                <div className='w-[80%] mx-auto relative '>
                     {icon &&
                         <div 
                             className=" absolute z-20  text-gray-300 left-3 scale-125 top-[50%] translate-y-[-50%]">
