@@ -1,100 +1,103 @@
 import './login.css'
-import  {useEffect} from 'react'
+import  {useState} from 'react'
 import CustomInput from '../common/Input'
 import { FormButton} from '../common/Buttons'
-import { useForm } from 'react-hook-form';
-import { 
-  AiOutlineMail,
-  AiFillLock,
-} from 'react-icons/ai'
-import { gapi } from 'gapi-script'
+import {validateEmail,validatePassword,validateConfirmPassword,validateUsername} from '../../helpers/validations'
+import { AiOutlineMail,AiFillLock} from 'react-icons/ai'
+
+let emailValidate={}
+let passwordValidate={}
+let usernameValidate={} 
+let password_confirmationValidate={}
 export const Register = () => {
-  const { register, handleSubmit, formState: { errors } } = useForm();
-  console.log('errors', typeof(errors.username))
-  const onSubmit = (data) => {
-    console.log(data);
-  };
-  const clientID='1090604505843-uq59rok8qc8jg41c7u218gtjfvtm2669.apps.googleusercontent.com'
-  useEffect(()=>{
-    function start(){
-      gapi.client.init({
-        clientId:clientID,
-        scope:''
-      })
-    }
-    gapi.load('client:auth2',start)
+  const [submet,setSubmet]=useState(false)  
+  const [register,setRegister]=useState({
+    username:'',
+    email:'',
+    password:'',
+    password_confirmation:''
   })
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    setSubmet(true)
+    emailValidate=validateEmail(register.email)
+    passwordValidate=validatePassword(register.password)
+    usernameValidate=validateUsername(register.username)
+    password_confirmationValidate=validateConfirmPassword(register.password_confirmation,register.password)
+  }
+  //validate register change
+  const handleRegisterChange = (e) => {
+    const { name, value } = e.target;
+    setRegister({ ...register, [name]: value });
+    emailValidate=validateEmail(register.email)
+    passwordValidate=validatePassword(register.password)
+    usernameValidate=validateUsername(register.username)
+    password_confirmationValidate=validateConfirmPassword(register.password_confirmation,register.password)
+  };
   return (
-    <form onSubmit={handleSubmit(onSubmit)} 
-    className={`my-4 flex flex-col 
-    ${
-      errors.username || errors.email || errors.password || errors.password_confirmation
-      ?  'gap-4' : ' gap-6'
-    }
-    `}>
+    <form onSubmit={handleSubmit} 
+    className={`my-4 flex flex-col gap-4 `}>
       <CustomInput 
         icon={<AiOutlineMail />} 
         type={'text'} 
         name={'username'}
         id={'username'}
-        {...register('username', {
-          required: true,
-          pattern: {
-            value: /^[a-zA-Z]+$/i,
-            message: 'Please enter a valid name.',
-          },
-        })}
         placeholder={'Enter your Name'} 
+        onChange={handleRegisterChange}
       />
-      {errors.username && 
-      <span className=' text-red-500 w-[80%] mx-auto flex'>
-        {errors.username.message}
-      </span>}
+      {
+        submet && usernameValidate?.error && (
+            <span className='text-red-500 text-sm w-[80%] flex mx-auto'>
+              {usernameValidate.message}
+            </span>
+        )
+      }
       <CustomInput 
         icon={<AiOutlineMail />} 
         type={'text'} 
         name={'email'}
         id={'email'}
-        {...register('email', { required: true, pattern: /^\S+@\S+$/i})}
         placeholder={'Enter your Email'} 
+        onChange={handleRegisterChange}
       />
-      {errors.email && (
-        <span className='text-red-500 w-[80%] mx-auto flex'>
-          {errors.email.type === 'required'
-            ? 'This field is required.'
-            : 'Please enter a valid email address.'}
-        </span>
-      )}
+      {
+        submet && emailValidate?.error && (
+            <span className='text-red-500 text-sm w-[80%] flex mx-auto'>
+              {emailValidate.message}
+            </span>
+        )
+      }
       <CustomInput 
         icon={<AiFillLock />} 
         type={'password'} 
         name={'password'}
         id={'password'}
-        {...register('password', { required: true, minLength: 6 })}
         placeholder={'●●●●●●●●●●'} 
+        onChange={handleRegisterChange}
       />
-      {errors.password && (
-        <span className='text-red-500 w-[80%] mx-auto flex'>
-          {errors.password.type === 'required'
-            ? 'This field is required.'
-            : 'Password must have at least 6 characters.'}
-        </span>
-      )}
+      {
+        submet && passwordValidate?.error && (
+            <span className='text-red-500 text-sm w-[80%] flex mx-auto'>
+              {passwordValidate.message}
+            </span>
+        )
+      }
       <CustomInput 
         icon={<AiFillLock />} 
         type={'password'} 
         name={'password_confirmation'}
         id={'password_confirmation'}
-        {...register('password_confirmation', { required: true, minLength: 6 })}
         placeholder={'●●●●●●●●●●'} 
+        onChange={handleRegisterChange}
+        
       />
-      {errors.password_confirmation && (
-        <span className='text-red-500 w-[80%] mx-auto flex'>
-          {errors.password_confirmation.type === 'required'
-            ? 'This field is required.'
-            : 'Password must have at least 6 characters.'}
-        </span>
-      )}
+      {
+        submet && password_confirmationValidate?.error && (
+            <span className='text-red-500 text-sm w-[80%] flex mx-auto'>
+              {password_confirmationValidate.message}
+            </span>
+        )
+      }
       <FormButton>
         Register
       </FormButton>

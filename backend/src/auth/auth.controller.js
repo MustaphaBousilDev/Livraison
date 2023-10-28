@@ -69,6 +69,8 @@ getAccessToken = (req,res,next) => {
         message:"You have been authenticated successfully"
     });
 }
+
+
 const createUser=asyncHandler(async (req,res)=>{
      const {username,email,password,picture}=req.body
      //const emailVerify = await EmailValidator(email)
@@ -111,7 +113,9 @@ const createUser=asyncHandler(async (req,res)=>{
                 })
            })
            .catch((error)=>{res.status(400).json({msg:error.message})})
- })
+})
+
+
 const login=asyncHandler(async (req,res)=>{
     const {email,password}=req.body
     console.log(email,password)

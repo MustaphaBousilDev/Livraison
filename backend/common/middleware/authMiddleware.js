@@ -2,6 +2,7 @@ const User=require('../../src/auth/user/model/user.model')
 const asyncHandler=require('express-async-handler')
 const jwt=require('jsonwebtoken')
 const {readPublicKey} = require('../../src/api')
+
 const authMiddleware=asyncHandler(async(req,res,next)=>{
      let token 
      if(req?.cookies?.token){

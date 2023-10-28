@@ -8,7 +8,7 @@ const CustomInput = ({
     value, 
     onChange, 
     name,
-    className
+    className,
 }) => {
 
     const [showPassword, setShowPassword] = useState(false)
@@ -30,7 +30,8 @@ const CustomInput = ({
                         type={showPassword ? 'text' : type}
                         placeholder={placeholder}
                         value={value}
-                        onChange={onChange}
+                        onKeyUp={onChange}
+                        
                         name={name}
                         className={`
                             w-full p-3 px-10 rounded-md border border-gray-500 
@@ -46,6 +47,7 @@ const CustomInput = ({
                         )
                     }
                 </div>
+                
             </div>
         </>
     )
@@ -59,5 +61,6 @@ CustomInput.propTypes = {
     onChange: PropTypes.func,
     name: PropTypes.string,
     className: PropTypes.string,
+    errorType: PropTypes.any,
 };
 export default CustomInput 
