@@ -1,57 +1,57 @@
 const User=require('../../src/auth/user/model/user.model')
 const asyncHandler=require('express-async-handler')
 const jwt=require('jsonwebtoken')
-const {readPublicKey} = require('../../src/api')
+const {readPublicKey, readPrivateKey} = require('../../src/api')
 
 const authMiddleware=asyncHandler(async(req,res,next)=>{
-     let token 
-     if(req?.cookies?.token){
-          token=req.cookies.token
-          try {
-               if(!token) {
-                    return res.status(401).json({
-                         success: false,
-                         message: "Token Missing"
-                    })
-               }
-               //verify token
-               let publicKey = readPublicKey()
-               if(!publicKey) {
-                    res.status(500).json({
-                         success: false,
-                         message: "Internal Server Error. Cannot read the public key"
-                    });
-                    return
-               }
-               let tokenInfo = await jwt.verify(token, publicKey);
-               const user=await User.findById(decoded.payload.id)
-               if(tokenInfo.id !== user._id.toString()) {
-                    res.status(403).json({
-                        success: false,
-                        message: "Access Denied to the resource!"
-                    });
-                    return
-               }
-               // req.user = user;
-               
-               if(!user) {
-                    res.status(404).json({
-                         success:false,
-                         message: "No user found with this id"
-                    })
-               }
-               req.user=user
-               next()
-          } catch (error) {
+     console.log('from middlewaredd')
+     let token =req?.params?.token
+     console.log(req.params.token)
+     try {
+          if(!token) {
                return res.status(401).json({
-                    success:false,
-                    message: "Error Occured in Authentication ⚠️"
+                    success: false,
+                    message: "Token Missing"
                })
           }
-     }else{
-          res.status(401).json({
-               success: false,
-               message: "Token Missing"
+          //verify token
+          let publicKey =readPublicKey()
+          if(!publicKey) {
+               res.status(500).json({
+                    success: false,
+                    message: "Internal Server Error. Cannot read the public key"
+               });
+               return
+          }
+          console.log('coming here')
+          let tokenInfo = await jwt.verify(token, publicKey);
+          console.log('coming here 2')
+
+          console.log(tokenInfo.payload)
+          const user=await User.findById(tokenInfo.payload.id)
+          //console.log(user)
+          if(tokenInfo.payload.id !== user._id.toString()) {
+               res.status(403).json({
+                   success: false,
+                   message: "Access Denied to the resource!"
+               });
+               return
+          }
+          console.log('coming here 3')
+          // req.user = user;
+          
+          if(!user) {
+               res.status(404).json({
+                    success:false,
+                    message: "No user found with this id"
+               })
+          }
+          req.user=user
+          next()
+     } catch (error) {
+          return res.status(401).json({
+               success:false,
+               message: "Error Occured in Authentication ⚠️"
           })
      }
 })

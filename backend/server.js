@@ -15,7 +15,7 @@ const authRouter = require('./src/auth/auth.route');
 // enabling cors for selected list of hosts or origins
 var corsOptions = {
      origin: [{
-          origin: 'http://localhost:3000',
+          origin: 'http://localhost:5173',
           credentials: true ,
           methods: ['GET', 'PUT', 'POST', 'DELETE', 'OPTIONS'],
           allowedHeaders: ['Content-Type', 'Authorization']

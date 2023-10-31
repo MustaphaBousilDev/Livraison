@@ -23,7 +23,7 @@ const { error_json, success_json } = require('../../helper/helper');
 const {
     items,
     user,
-    readPrivateKey
+    readPrivateKey,
 } = require('../api');
 
 
@@ -72,7 +72,9 @@ getAccessToken = (req,res,next) => {
 
 
 const createUser=asyncHandler(async (req,res)=>{
-     const {username,email,password,picture}=req.body
+     console.log('coming here')
+     console.log(req.body.email)
+     const {username,email,password}=req.body
      //const emailVerify = await EmailValidator(email)
      const check=await User.findOne({email:email})
      if(check) return res.status(400).json({msg:'This email is already exists'})
@@ -87,15 +89,16 @@ const createUser=asyncHandler(async (req,res)=>{
       username,
       email,
       role:"6530e3c6b66fead76cb05923",
-
-      
       password:cryptePassword,
-      picture,
     }).then((saveUser)=>{
      console.log('tototototo')
      console.log(saveUser)
                 const emailVerificationToken=generateToken({id:saveUser._id.toString()},"30m")
-                const url=`${process.env.PORT}/api/v1/activate/${emailVerificationToken}`
+                const encodedToken = Buffer.from(emailVerificationToken).toString('base64');
+                console.log(encodedToken);
+                //encod  
+                const url=`http://localhost:${process.env.PORT_FRONT}/verifyEmail/${encodedToken}`
+                //
                 let mailOptions = {
                      from: 'AlloMedia.livraieon@media.com',
                      to: req.body.email,
@@ -119,13 +122,11 @@ const createUser=asyncHandler(async (req,res)=>{
 const login=asyncHandler(async (req,res)=>{
     const {email,password}=req.body
     console.log(email,password)
-    const findUser=await User.findOne({email:email})
-    console.log('find user')
-    console.log(findUser)
-    console.log(findUser._id)
+    const findUser=await User.findOne({email:email,verified:true})
     if(findUser && await bcrypt.compare(password,findUser.password)){
          let id_t=findUser.id
          const refreshToken=await generateRefrehToken({id:findUser.id},"30m")
+         console.log(refreshToken)
 
          console.log('coming here')
          const updateUser=await User.findByIdAndUpdate(
@@ -145,19 +146,22 @@ const login=asyncHandler(async (req,res)=>{
          // secure true to allow https only
          res.cookie("token",refreshToken,{
               httpOnly:true, 
-              sameSite:'strict',
+              sameSite:'Strict',
+              //secure true when you use https
               secure:false,
               maxAge:72 * 60 * 60 * 1000,
          })
          res.status(201).json({
-              _id:findUser?._id,
-              username:findUser?.username,
-              email:findUser?.email,
-              picture:findUser?.picture,
-              //token:generateRefrehToken({id:findUser._id.toString()},"3d")
+              message:'Login Success',
+              data:{
+               username:findUser?.username,
+               email:findUser?.email,
+               picture:findUser?.picture,
+               token:generateRefrehToken({id:findUser._id.toString()},"3d")
+              }
          })
     }else{
-         return res.status(401).json({message:'Invalid email or password'})
+         return res.status(401).json({message:'Invalid email or password or not activated'})
     }
 })
 //handle refresh token 
@@ -236,8 +240,10 @@ const logOut=asyncHandler(async (req,res)=>{
 const activeAccount=asyncHandler(async (req,res)=>{
      try {
           const {token}=req.params
+          console.log(token)
           let publicKey = readPublicKey()
           const user=jwt.verify(token,publicKey)
+          console.log('user',user)
           const check=await User.findById(user.payload.id)
           /*if (check) {
                return res.status(400).json({
@@ -263,15 +269,22 @@ const activeAccount=asyncHandler(async (req,res)=>{
  })
 
 const resetPassword = asyncHandler(async (req, res) => {
-     try {
+     console.log('coming here')
+     try { 
           const { email } = req.body;
-          const user = await User.findOne({ email }).select("-password");
+          const user = await User.findOne(
+               { 
+                    email:email,
+                    verified:true 
+               })
+                   .select("-password");
+          if(!user) return res.status(400).json({
+               message:'This email is not exists or not activated',
+               success:false
+          })
           await Code.findOneAndRemove({ user: user._id });
           const code = generateCode(5);
-          const savedCode = await new Code({
-               code,
-               user: user._id,
-          }).save();
+          const savedCode = await new Code({code,user: user._id,}).save();
           const url = `${process.env.PORT}/api/v1/changePassword/${user._id}`;
           let mailOptions = {
                from: 'AlloMedia.livraieon@media.com',
@@ -284,45 +297,117 @@ const resetPassword = asyncHandler(async (req, res) => {
           sendMails(mailOptions)
           return res.status(200).json({
                message: "Email reset code has been sent to your email",
+               success: true,
           });
           } catch (error) {
-          res.status(500).json({ message: error.message });
-          }
+          res.status(500).json({ 
+               message: error.message ,
+               success:false
+          });
+     }
 });
 //validate reset password 
 const validateResetPassword=asyncHandler(async (req,res)=>{
+     console.log('v alidate reset password')
      try {
-          const { email, code } = req.body;
-          const {id}=req.params
+          const { code } = req.body;
+          console.log('code')
+          console.log(code)
+          const {email}=req.params
+          //console.log(email)
           const user = await User.findOne({ email });
+          console.log(user)
           const Dbcode = await Code.findOne({ user: user._id });
+          console.log('from code')
+          console.log(Dbcode)
+          console.log(typeof(Dbcode.code))
+          console.log('code')
+          console.log(code)
+          console.log(typeof(code))
           if (Dbcode.code !== code) {
             //check date expired from model code
-            
-            return res.status(400).json({
+             console.log('fuck')
+             return res.status(400).json({
                message: "Verification code is wrong..",
+               success:false
              });
           }
           /*if(Dbcode.expireA < Date.now()){
                return res.status(400).json({ message: "code expired" });
           }*/
-          return res.status(200).json({ message: "ok" });
+          return res.status(200).json({ 
+               message: "ok" ,
+               success:true
+          });
      } catch (error) {
-     res.status(500).json({ message: error.message });
+          res.status(500).json({ 
+               message: error.message,
+               success:false
+          });
      }
 })
 
 //change password 
 const changePassword=asyncHandler(async (req,res)=>{
-     const { email, password } = req.body;
+     const { email, password,password_confirm } = req.body;
+     console.log(email,password,password_confirm)
      const cryptedPassword = await bcrypt.hash(password, 12);
      await User.findOneAndUpdate(
      { email },
      {password: cryptedPassword,}
      );
-     return res.status(200).json({ message: "ok" });
+     return res.status(200).json({ 
+          message: "ok",
+          success:true
+     });
 })
- 
+
+//getUserAuth
+const getUserAuth=asyncHandler(async (req,res)=>{
+     let token =req?.params?.token
+     console.log(req.params.token)
+     try {
+          if(!token) {
+               return res.status(401).json({
+                    success: false,
+                    message: "Token Missing"
+               })
+          }
+          //verify token
+          let publicKey = readPublicKey()
+          if(!publicKey) {
+               res.status(500).json({
+                    success: false,
+                    message: "Internal Server Error. Cannot read the public key"
+               });
+               return
+          }
+          let tokenInfo = await jwt.verify(token, publicKey);
+          const user=await User.findById(tokenInfo.payload.id)
+          if(tokenInfo.payload.id !== user._id.toString()) {
+               res.status(403).json({
+                   success: false,
+                   message: "Access Denied to the resource!"
+               });
+               return
+          }
+          if(!user) {
+               res.status(404).json({
+                    success:false,
+                    message: "No user found with this id"
+               })
+          }
+          return res.status(200).json({
+               success:true,
+               user
+          })
+     } catch (error) {
+          return res.status(401).json({
+               success:false,
+               message: "Error Occured in Authentication ⚠️"
+          })
+     }
+})
 
 module.exports = {  
      getAllItems,
@@ -335,5 +420,6 @@ module.exports = {
      activeAccount,
      resetPassword,
      validateResetPassword,
-     changePassword
+     changePassword,
+     getUserAuth
 }

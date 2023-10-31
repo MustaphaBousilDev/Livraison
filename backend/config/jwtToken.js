@@ -1,5 +1,5 @@
 const jwt=require('jsonwebtoken');
-const { readPrivateKey } = require('../src/api');
+const { readPrivateKey, readPublicKey } = require('../src/api');
 
 const generateToken=(payload,expired)=>{
 

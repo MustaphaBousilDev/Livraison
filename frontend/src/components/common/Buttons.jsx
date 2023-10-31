@@ -1,11 +1,15 @@
 import PropTypes from 'prop-types';
 const FormButton = ({ 
     children,
-    className
+    className,
+    disabled,
+    onClick,
  }) => {
     return (
       <div className='form_btn'>
         <button 
+            onClick={onClick}
+            disabled={disabled}    
             className={`
                 w-[80%] mx-auto flex  p-3 rounded-md 
                 justify-center items-center scale-[.99] hover:scale-100 text-white font-bold bg-primary transition 
@@ -13,7 +17,7 @@ const FormButton = ({
                ${className}`
             }
             type='submit' >
-                {children}
+            {children}
         </button>
       </div>
     )
@@ -45,6 +49,8 @@ export {
 FormButton.propTypes = {
     children: PropTypes.any, // You can specify the expected prop types
     className: PropTypes.string,
+    disabled: PropTypes.any,
+    onClick: PropTypes.func,
 };
 
 ButtonDefault.propTypes = {

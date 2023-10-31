@@ -1,5 +1,71 @@
+import { useEffect, useState } from 'react';
 import Email from '../assets/verify-removebg-preview.png'
+import { useNavigate, useParams } from 'react-router-dom';
+import axios from 'axios';
+import { useMutation, useQueryClient } from 'react-query';
+
 const VerifyEmail = () => {
+  const navigate=useNavigate()
+  const params = useParams();
+  const { token } = params;
+  const verifyEm=(token)=> {
+    //console.log('fuck')
+    //console.log(token)
+    return axios
+      .get(`http://localhost:5000/api/v1/auth/activate/${token}`)
+      .then(res => res.data)
+  }
+  //react query 
+  const queryClient = useQueryClient()
+  const createUserMutation = useMutation({
+    mutationFn: verifyEm,
+    onSuccess: data => {
+      console.log("sucees",data)
+      //queryClient.set
+      queryClient.setQueryData(["verify", data], data)
+      queryClient.invalidateQueries(["verify"], { exact: true })
+      navigate('/inscription')
+
+    },
+    onError: (error)=>{
+      console.log(error)
+    }
+  })
+  const [time, setTime] = useState(1200);
+  
+  const [decodedToken, setDecodedToken] = useState(null);
+  useEffect(() => {
+    if (token.length > 0) {
+      console.log('fuck bitch')
+      //atob is a function to decode base64
+      const decodedTokens = atob(token);
+      console.log('hahahahaha')
+      console.log(decodedTokens);
+      setDecodedToken(decodedTokens);
+      createUserMutation.mutate(decodedToken);
+      console.log('after')
+      console.log(decodedToken)
+    }
+   },[])
+  
+   
+  
+  useEffect(() => {
+    const countdown = setInterval(() => {
+      if (time > 0) {
+        setTime(time - 1);
+      } else {
+        clearInterval(countdown);
+      }
+    }, 1000);
+
+    return () => {
+      clearInterval(countdown);
+    };
+  }, [time]);
+  const minutes = Math.floor(time / 60);
+  const seconds = time % 60;
+  //const 
   return (
     <div  className=" bg-gray-100 w-screen h-screen flex items-center justify-center">
         <div className=" relative w-[98%] mx-auto rounded-xl md:mx-auto md:w-[80%] xl:w-[60%] min-h-[50vh] border bg-white">
@@ -17,8 +83,12 @@ const VerifyEmail = () => {
                     <a className=' text-blue-400 font-semibold cursor-pointer hover:underline'>Click here</a> if you did not receive the email or would like to change the email address 
                     you signed up with
                 </p>
+                <p>
+                  {minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}
+                </p>
             </div>
           </div>
+
         </div>
     </div>
   )

@@ -9,6 +9,7 @@ const CustomInput = ({
     onChange, 
     name,
     className,
+    disabled=false,
 }) => {
 
     const [showPassword, setShowPassword] = useState(false)
@@ -17,7 +18,7 @@ const CustomInput = ({
     };
     return (
         <>
-            <div className=''>
+            
                 <div className='w-[80%] mx-auto relative '>
                     {icon &&
                         <div 
@@ -31,12 +32,12 @@ const CustomInput = ({
                         placeholder={placeholder}
                         value={value}
                         onKeyUp={onChange}
-                        
+                        disabled={disabled}
                         name={name}
                         className={`
-                            w-full p-3 px-10 rounded-md border border-gray-500 
-                            focus:border-white transition duration-200 ease-in-out 
-                            bg-gray-900 outline-none text-white
+                            w-full p-3 px-10 rounded-md border 
+                             transition duration-200 ease-in-out 
+                            bg-gray-900 outline-none 
                             ${className}`}
                     />
                     {
@@ -47,8 +48,6 @@ const CustomInput = ({
                         )
                     }
                 </div>
-                
-            </div>
         </>
     )
 }
@@ -62,5 +61,6 @@ CustomInput.propTypes = {
     name: PropTypes.string,
     className: PropTypes.string,
     errorType: PropTypes.any,
+    disabled: PropTypes.bool,
 };
 export default CustomInput 

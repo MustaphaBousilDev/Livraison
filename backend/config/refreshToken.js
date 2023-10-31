@@ -1,5 +1,5 @@
 const jwt=require('jsonwebtoken')
-const { readPrivateKey } = require('../src/api');
+const { readPrivateKey, readPublicKey } = require('../src/api');
 const generateRefrehToken=(payload,expired="3d")=>{
      console.log('fucking payload',payload)
      let privateKey = readPrivateKey()

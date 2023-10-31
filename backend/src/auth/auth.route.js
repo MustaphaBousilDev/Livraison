@@ -13,8 +13,10 @@ const {
      activeAccount,
      resetPassword,
      validateResetPassword,
-     changePassword
-} = require('./auth.controller')
+     changePassword,
+     getUserAuth
+} = require('./auth.controller');
+const { authMiddleware } = require('../../common/middleware/authMiddleware');
 
 const router = express.Router();
 
@@ -28,8 +30,9 @@ router.post('/login-admin',loginAdmin)
 router.get('/activate/:token',activeAccount)
 //router.post('/sendVerification',sendVerification)
 router.post('/sendResetPasswordCode',resetPassword)
-router.post('/validateResetPassword/:id',validateResetPassword)
+router.post('/validateResetPassword/:email',validateResetPassword)
 router.post('/changePassword',changePassword)
+router.get('/getUserAuth/:token',getUserAuth)
 
 
 module.exports = router;

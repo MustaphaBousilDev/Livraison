@@ -1,19 +1,57 @@
 import './login.css'
-import  {useEffect, useState} from 'react'
+import  {useState} from 'react'
 import CustomInput from '../common/Input'
-
-
+import { useMutation } from 'react-query';
+import axios from 'axios';
+import { useQueryClient } from 'react-query'
+import { Link, useNavigate } from 'react-router-dom';
 import { FormButton} from '../common/Buttons'
+import Cookies from 'js-cookie';
 import { 
   AiOutlineMail,
   AiFillLock,
 } from 'react-icons/ai'
-import { GoogleLogin } from 'react-google-login'
-import { gapi } from 'gapi-script'
-import { validateEmail, validatePassword } from '../../helpers/validations'
+//import { validateEmail, validatePassword } from '../../helpers/validations'
 let emailValidate={}
 let passwordValidate={}
 export const Login = () => {
+  const navigate=useNavigate()
+  const loginUser=(login)=> {
+    console.log('fuck')
+    console.log(login)
+    return axios
+      .post("http://localhost:5000/api/v1/auth/login", login)
+      .then(res => res.data)
+  }
+  //react query 
+  const queryClient = useQueryClient()
+  const loginUserMutation = useMutation({
+    mutationFn: loginUser,
+    onSuccess: data => {
+      //set
+      console.log("sucees",data)
+      //queryClient.set
+      queryClient.setQueryData(["users", data], data)
+      queryClient.invalidateQueries(["users"], { exact: true })
+      alert(data.message)
+      //navigate('/')
+      //store token in local storage 
+      localStorage.setItem('token',data.data.token)
+      Cookies.set('token', data.data.token, { httpOnly: true });
+      //store in cookie the token using only http^
+      
+      navigate('/')
+
+
+      //get response from 
+
+
+      //setCurrentPage(<Post id={data.id} />)
+    },
+    onError: (error)=>{
+      console.log(error)
+    }
+  })
   const [submet,setSubmet]=useState(false) 
   const [login,setLogin]=useState({
     email:'',
@@ -22,31 +60,19 @@ export const Login = () => {
   const handleSubmit = (e) => {
     e.preventDefault()
     setSubmet(true)
-    emailValidate=validateEmail(login.email)
-    passwordValidate=validatePassword(login.password)
+    //emailValidate=validateEmail(login.email)
+    //passwordValidate=validatePassword(login.password)
+    if(!emailValidate?.error && !passwordValidate?.error){
+      loginUserMutation.mutate(login);
+    }
   }
   const handleLoginChange = (e) => {
     const { name, value } = e.target;
     setLogin({ ...login, [name]: value });
-    emailValidate=validateEmail(login.email)
-    passwordValidate=validatePassword(login.password)
+    //emailValidate=validateEmail(login.email)
+    //passwordValidate=validatePassword(login.password)
   };
-  const clientID='1090604505843-uq59rok8qc8jg41c7u218gtjfvtm2669.apps.googleusercontent.com'
-  const onSuccess=(res)=>{
-    console.log(res)
-  }
-  const onFailure=(res)=>{
-    console.log(res)
-  }
-  useEffect(()=>{
-    function start(){
-      gapi.client.init({
-        clientId:clientID,
-        scope:''
-      })
-    }
-    gapi.load('client:auth2',start)
-  })
+  
   return (
     <form
       onSubmit={handleSubmit}
@@ -58,15 +84,18 @@ export const Login = () => {
         id={'email'}
         placeholder={'Enter your Email'} 
         onChange={handleLoginChange}
-        className={`${submet && emailValidate?.error && 
+        className={`border-gray-500 focus:border-white text-white ${submet && emailValidate?.error && 
           ' border-2 border-red-500 focus:border-red-800'}`}
+        
       />
       {
-        submet && emailValidate?.error && (
+        /**
+         * submet && emailValidate?.error && (
             <span className='text-red-500 text-sm w-[80%] flex mx-auto'>
               {emailValidate.message}
             </span>
         )
+         */
       }
       <CustomInput 
         icon={<AiFillLock />} 
@@ -75,34 +104,38 @@ export const Login = () => {
         id={'password'}
         placeholder={'●●●●●●●●●●'} 
         onChange={handleLoginChange}
-        className={`${submet && passwordValidate?.error && 
-          ' border-2 border-red-500 focus:border-red-800'}`}
+        className={`border-gray-500 focus:border-white text-white 
+          ${submet && passwordValidate?.error && 
+            'border-2 border-red-500 focus:border-red-800'}`}
       />
       {
-        submet && passwordValidate?.error && (
+        /**
+         * submet && passwordValidate?.error && (
             <span className='text-red-500 text-sm w-[80%] flex mx-auto'>
               {passwordValidate.message}
             </span>
         )
+         */
       }
-      <FormButton>
-        login
+      <FormButton
+        disabled={loginUserMutation.isLoading}
+        >
+        {
+          loginUserMutation.isLoading ? 'Login...' : 'Login'
+        }
       </FormButton>
+
+      <div className=' text-white w-[80%] mx-auto hover:underline transition text-sm'>
+        <Link to='/forgotPassword'>
+          Forgot password
+        </Link>
+      </div>
 
       <div className=' flex items-center gap-2 w-[80%] mx-auto my-6'>
         <span className=' h-[1px] w-[49%] bg-white mt-1'></span>
         <span className=' text-white'>or</span>
         <span className=' h-[1px] w-[49%] bg-white mt-1'></span>
       </div>
-      <GoogleLogin
-        clientId={clientID}
-        buttonText='Login by google'
-        onSuccess={onSuccess}
-        onFailure={onFailure}
-        cookiePolicy={'single_host_origin'}
-        isSignedIn={true}
-        className='w-[80%] ml-[10%]  text-gray-800 flex items-center justify-center'
-      />
     </form>
   )
 }

@@ -7,6 +7,9 @@ export default {
   ],
   theme: {
     extend: {
+      backgroundImage:{
+        'forgot-password': 'url("./src/assets/forgotPassword.png")',
+      },
       colors: {
         primary:'rgba(252,71,71,1)'
       },
