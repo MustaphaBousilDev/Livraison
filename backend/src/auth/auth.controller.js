@@ -215,9 +215,12 @@ const loginAdmin=asyncHandler(async (req,res)=>{
 })
 //logout 
 const logOut=asyncHandler(async (req,res)=>{
-    const cookie=req.cookies 
-    if(!cookie?.token) throw new Error("No Refresh Token in Cookies")
-    const refreshToken=cookie.token 
+    const {token} = req.params
+    console.log('fucking token ')
+    console.log(token)
+
+    if(!token) throw new Error("No Refresh Token in Cookies")
+    const refreshToken=token 
     console.log(refreshToken)
     const user=await User.findOne({refreshToken})
     if(!user){
@@ -240,6 +243,7 @@ const logOut=asyncHandler(async (req,res)=>{
 const activeAccount=asyncHandler(async (req,res)=>{
      try {
           const {token}=req.params
+          console.log('fucking token')
           console.log(token)
           let publicKey = readPublicKey()
           const user=jwt.verify(token,publicKey)
@@ -365,6 +369,7 @@ const changePassword=asyncHandler(async (req,res)=>{
 //getUserAuth
 const getUserAuth=asyncHandler(async (req,res)=>{
      let token =req?.params?.token
+     console.log('fucking')
      console.log(req.params.token)
      try {
           if(!token) {
@@ -384,6 +389,7 @@ const getUserAuth=asyncHandler(async (req,res)=>{
           }
           let tokenInfo = await jwt.verify(token, publicKey);
           const user=await User.findById(tokenInfo.payload.id)
+          console.log(user)
           if(tokenInfo.payload.id !== user._id.toString()) {
                res.status(403).json({
                    success: false,
@@ -397,9 +403,10 @@ const getUserAuth=asyncHandler(async (req,res)=>{
                     message: "No user found with this id"
                })
           }
+          console.log('success yooww')
           return res.status(200).json({
                success:true,
-               user
+               data:user
           })
      } catch (error) {
           return res.status(401).json({

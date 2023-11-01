@@ -7,6 +7,7 @@ import { useQueryClient } from 'react-query'
 import { Link, useNavigate } from 'react-router-dom';
 import { FormButton} from '../common/Buttons'
 import Cookies from 'js-cookie';
+import { loginUser } from '../../service/api/auth/auth';
 import { 
   AiOutlineMail,
   AiFillLock,
@@ -16,13 +17,7 @@ let emailValidate={}
 let passwordValidate={}
 export const Login = () => {
   const navigate=useNavigate()
-  const loginUser=(login)=> {
-    console.log('fuck')
-    console.log(login)
-    return axios
-      .post("http://localhost:5000/api/v1/auth/login", login)
-      .then(res => res.data)
-  }
+  
   //react query 
   const queryClient = useQueryClient()
   const loginUserMutation = useMutation({

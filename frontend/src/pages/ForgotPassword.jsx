@@ -13,6 +13,7 @@ import { FormButton } from '../components/common/Buttons'
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import {RiErrorWarningLine} from 'react-icons/ri'
+import { verifyEmail,verifyChangePassword } from '../service/api/auth/auth';
 let emailValidate={}
 const ForgotPassword = () => {
   const [email,setEmail]=useState('')
@@ -25,21 +26,13 @@ const ForgotPassword = () => {
     password_confirm:''
   })
   const navigate=useNavigate()
-  const verifyEmail=(email)=>{
-    return axios
-      .post("http://localhost:5000/api/v1/auth/sendResetPasswordCode",email)
-      .then(res => res.data)
-  }
+  
   const verifyCode=(code)=>{
     return axios
       .post(`http://localhost:5000/api/v1/auth/validateResetPassword/${email}`,code)
       .then(res => res.data)
   }
-  const verifyChangePassword=(password)=>{
-    return axios
-      .post(`http://localhost:5000/api/v1/auth/changePassword`,password)
-      .then(res => res.data)
-  }
+  
   const queryClient = useQueryClient()
   const VerifyMutation = useMutation({
     mutationFn: verifyEmail,
@@ -80,8 +73,7 @@ const ForgotPassword = () => {
       //queryClient.set
       queryClient.setQueryData(["usersPassword", data], data)
       queryClient.invalidateQueries(["usersPassword"], { exact: true })
-      //navigate('/updatePassword')
-      //setSuccessCode(true)
+      navigate('/inscription')
     },
     onError: (error)=>{
       console.log(error)
@@ -111,7 +103,6 @@ const ForgotPassword = () => {
 
   const handleCodeChange=(e)=>{
     setCode(e.target.value)
-    console.log('code',code)
   }
 
   const handleChangePassword=(e)=>{
@@ -120,7 +111,6 @@ const ForgotPassword = () => {
   }
 
   const handleCode=(e)=>{
-    console.log('tototot')
     e.preventDefault()
     VerifyCodeMutation.mutate({code})
     
@@ -128,7 +118,6 @@ const ForgotPassword = () => {
 
   const handlePassword=(e)=>{
     e.preventDefault()
-    console.log('tototot')
     VerifyPasswordMutation.mutate({
       ...changePassword,
       email:email

@@ -33,6 +33,7 @@ router.post('/sendResetPasswordCode',resetPassword)
 router.post('/validateResetPassword/:email',validateResetPassword)
 router.post('/changePassword',changePassword)
 router.get('/getUserAuth/:token',getUserAuth)
+router.get('/logout/:token',authMiddleware,logOut)
 
 
 module.exports = router;

@@ -3,18 +3,12 @@ import Email from '../assets/verify-removebg-preview.png'
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { useMutation, useQueryClient } from 'react-query';
-
+import { verifyEm } from '../service/api/auth/auth';
 const VerifyEmail = () => {
   const navigate=useNavigate()
   const params = useParams();
-  const { token } = params;
-  const verifyEm=(token)=> {
-    //console.log('fuck')
-    //console.log(token)
-    return axios
-      .get(`http://localhost:5000/api/v1/auth/activate/${token}`)
-      .then(res => res.data)
-  }
+  
+  
   //react query 
   const queryClient = useQueryClient()
   const createUserMutation = useMutation({
@@ -35,18 +29,12 @@ const VerifyEmail = () => {
   
   const [decodedToken, setDecodedToken] = useState(null);
   useEffect(() => {
-    if (token.length > 0) {
-      console.log('fuck bitch')
-      //atob is a function to decode base64
-      const decodedTokens = atob(token);
-      console.log('hahahahaha')
-      console.log(decodedTokens);
-      setDecodedToken(decodedTokens);
-      createUserMutation.mutate(decodedToken);
-      console.log('after')
-      console.log(decodedToken)
-    }
-   },[])
+      if (params && params.token) {
+        const decodedTokens = atob(params.token);
+        setDecodedToken(decodedTokens);
+        createUserMutation.mutate(decodedTokens);
+      }
+   },[params])
   
    
   

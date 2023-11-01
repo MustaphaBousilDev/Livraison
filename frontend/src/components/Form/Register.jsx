@@ -8,6 +8,7 @@ import { useMutation } from 'react-query';
 import axios from 'axios';
 import { useQueryClient } from 'react-query'
 import { useNavigate } from 'react-router-dom';
+import { createUser } from '../../service/api/auth/auth';
 
 
 let emailValidate={}
@@ -20,13 +21,7 @@ export const Register = () => {
   const navigate=useNavigate()
 
   
-  const createUser=(register)=> {
-    console.log('fuck')
-    console.log(register)
-    return axios
-      .post("http://localhost:5000/api/v1/auth/register", register)
-      .then(res => res.data)
-  }
+  
   //react query 
   const queryClient = useQueryClient()
   const createUserMutation = useMutation({

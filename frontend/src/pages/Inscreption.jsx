@@ -44,9 +44,9 @@ const Inscreption = () => {
       }
     }
     //getUserAuth()
-    useEffect(() => {
+    /*useEffect(() => {
       getUserAuth(); // Fetch user data when the component mounts
-    }, []);
+    }, []);*/
     
   return (
     <>

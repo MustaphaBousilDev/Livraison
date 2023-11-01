@@ -1,0 +1,31 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: ./backend/Dockerfile
+      target: development
+    image: backend
+    command: npm run dev
+    env_file:
+      - ./backend/.env
+    ports:
+      - 5000:5000
+    depends_on:
+      - mongo
+  frontend: 
+    build:
+      context: .
+      dockerfile: ./frontend/Dockerfile
+      target: development
+    image: frontend
+    command: npm run dev
+    env_file:
+      - ./frontend/.env
+    ports:
+      - 5173:5173
+    depends_on:
+      - mongo
+  mongo:
+    image: mongo
+    
+  

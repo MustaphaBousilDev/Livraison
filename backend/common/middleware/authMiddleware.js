@@ -4,9 +4,10 @@ const jwt=require('jsonwebtoken')
 const {readPublicKey, readPrivateKey} = require('../../src/api')
 
 const authMiddleware=asyncHandler(async(req,res,next)=>{
-     console.log('from middlewaredd')
+     console.log('from middlewaredddddd')
      let token =req?.params?.token
-     console.log(req.params.token)
+     console.log(req?.cookies?.token)
+     //console.log(req.params.token)
      try {
           if(!token) {
                return res.status(401).json({
