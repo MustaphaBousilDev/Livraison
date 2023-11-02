@@ -7,6 +7,8 @@ const authMiddleware=asyncHandler(async(req,res,next)=>{
      console.log('from middlewaredddddd')
      let token =req?.params?.token
      console.log(req?.cookies?.token)
+     console.log('token from cookie')
+     
      //console.log(req.params.token)
      try {
           if(!token) {

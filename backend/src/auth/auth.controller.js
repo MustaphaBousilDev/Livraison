@@ -121,14 +121,12 @@ const createUser=asyncHandler(async (req,res)=>{
 
 const login=asyncHandler(async (req,res)=>{
     const {email,password}=req.body
-    console.log(email,password)
     const findUser=await User.findOne({email:email,verified:true})
+    console.log('find user')
+    console.log(findUser)
     if(findUser && await bcrypt.compare(password,findUser.password)){
          let id_t=findUser.id
          const refreshToken=await generateRefrehToken({id:findUser.id},"30m")
-         console.log(refreshToken)
-
-         console.log('coming here')
          const updateUser=await User.findByIdAndUpdate(
               findUser._id,
               {
@@ -137,12 +135,8 @@ const login=asyncHandler(async (req,res)=>{
           },
               {new:true}
          )
-
          // Increments the login count for the user
           await findUser.incrementLoginCount();
-
-         
-
          // secure true to allow https only
          res.cookie("token",refreshToken,{
               httpOnly:true, 

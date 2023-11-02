@@ -7,7 +7,6 @@ export const loginUser=(login)=> {
       .post("http://localhost:5000/api/v1/auth/login", login)
       .then(res => res.data)
 }
-
 export const createUser=(register)=> {
     console.log('fuck')
     console.log(register)
@@ -15,7 +14,6 @@ export const createUser=(register)=> {
       .post("http://localhost:5000/api/v1/auth/register", register)
       .then(res => res.data)
 }
-
 export const verifyEm=(token)=> {
     //console.log('fuck')
     //console.log(token)
@@ -23,7 +21,6 @@ export const verifyEm=(token)=> {
       .get(`http://localhost:5000/api/v1/auth/activate/${token}`)
       .then(res => res.data)
 }
-
 export const verifyEmail=(email)=>{
     return axios
       .post("http://localhost:5000/api/v1/auth/sendResetPasswordCode",email)
@@ -39,7 +36,6 @@ export const verifyChangePassword=(password)=>{
       .post(`http://localhost:5000/api/v1/auth/changePassword`,password)
       .then(res => res.data)
 }
-
 export const logout=()=> {
     console.log('fuck')
     return axios

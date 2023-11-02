@@ -19,9 +19,6 @@ let password_confirmationValidate={}
 //new QueyClient is a new instance of QueryClient we use it to make request to the server
 export const Register = () => {
   const navigate=useNavigate()
-
-  
-  
   //react query 
   const queryClient = useQueryClient()
   const createUserMutation = useMutation({

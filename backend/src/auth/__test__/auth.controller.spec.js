@@ -69,7 +69,6 @@ describe('Login User',()=>{
 
     })
     it("should log in a user with valid credentials", async()=>{
-
         jest.spyOn(bcrypt,'compare').mockResolvedValueOnce(true)
         jest.spyOn(User,'findOne').mockResolvedValueOnce(true)
         jest.spyOn(User,'findByIdAndUpdate').mockResolvedValueOnce(true)
@@ -84,7 +83,6 @@ describe('Login User',()=>{
           expect(mockRes.status).toHaveBeenCalledWith(201);
           expect(User.findOne).toHaveBeenCalledWith({email: userLogin.email})
     })
-        
 })
 
 
