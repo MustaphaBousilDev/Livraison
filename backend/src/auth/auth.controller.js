@@ -72,8 +72,6 @@ getAccessToken = (req,res,next) => {
 
 
 const createUser=asyncHandler(async (req,res)=>{
-     console.log('coming here')
-     console.log(req.body.email)
      const {username,email,password}=req.body
      //const emailVerify = await EmailValidator(email)
      const check=await User.findOne({email:email})
@@ -83,7 +81,6 @@ const createUser=asyncHandler(async (req,res)=>{
      const salt=await bcrypt.genSaltSync(10)
      const cryptePassword=await bcrypt.hashSync(password,salt)
      //const user=new User({username,email,password:cryptePassword,picture})
-     //add role array i want to add role id '"6530e3c6b66fead76cb05923" '
 
      const user = await User.create({
       username,
@@ -91,14 +88,9 @@ const createUser=asyncHandler(async (req,res)=>{
       role:"6530e3c6b66fead76cb05923",
       password:cryptePassword,
     }).then((saveUser)=>{
-     console.log('tototototo')
-     console.log(saveUser)
                 const emailVerificationToken=generateToken({id:saveUser._id.toString()},"30m")
-                const encodedToken = Buffer.from(emailVerificationToken).toString('base64');
-                console.log(encodedToken);
-                //encod  
+                const encodedToken = Buffer.from(emailVerificationToken).toString('base64'); 
                 const url=`http://localhost:${process.env.PORT_FRONT}/verifyEmail/${encodedToken}`
-                //
                 let mailOptions = {
                      from: 'AlloMedia.livraieon@media.com',
                      to: req.body.email,
@@ -122,8 +114,6 @@ const createUser=asyncHandler(async (req,res)=>{
 const login=asyncHandler(async (req,res)=>{
     const {email,password}=req.body
     const findUser=await User.findOne({email:email,verified:true})
-    console.log('find user')
-    console.log(findUser)
     if(findUser && await bcrypt.compare(password,findUser.password)){
          let id_t=findUser.id
          const refreshToken=await generateRefrehToken({id:findUser.id},"30m")
@@ -138,14 +128,14 @@ const login=asyncHandler(async (req,res)=>{
          // Increments the login count for the user
           await findUser.incrementLoginCount();
          // secure true to allow https only
-         res.cookie("token",refreshToken,{
+          res.cookie("token",refreshToken,{
               httpOnly:true, 
               sameSite:'Strict',
               //secure true when you use https
               secure:false,
               maxAge:72 * 60 * 60 * 1000,
          })
-         res.status(201).json({
+          res.status(201).json({
               message:'Login Success',
               data:{
                username:findUser?.username,
@@ -210,12 +200,8 @@ const loginAdmin=asyncHandler(async (req,res)=>{
 //logout 
 const logOut=asyncHandler(async (req,res)=>{
     const {token} = req.params
-    console.log('fucking token ')
-    console.log(token)
-
     if(!token) throw new Error("No Refresh Token in Cookies")
     const refreshToken=token 
-    console.log(refreshToken)
     const user=await User.findOne({refreshToken})
     if(!user){
          res.clearCookie('token',{
@@ -237,11 +223,8 @@ const logOut=asyncHandler(async (req,res)=>{
 const activeAccount=asyncHandler(async (req,res)=>{
      try {
           const {token}=req.params
-          console.log('fucking token')
-          console.log(token)
           let publicKey = readPublicKey()
           const user=jwt.verify(token,publicKey)
-          console.log('user',user)
           const check=await User.findById(user.payload.id)
           /*if (check) {
                return res.status(400).json({
@@ -267,7 +250,6 @@ const activeAccount=asyncHandler(async (req,res)=>{
  })
 
 const resetPassword = asyncHandler(async (req, res) => {
-     console.log('coming here')
      try { 
           const { email } = req.body;
           const user = await User.findOne(
@@ -306,25 +288,12 @@ const resetPassword = asyncHandler(async (req, res) => {
 });
 //validate reset password 
 const validateResetPassword=asyncHandler(async (req,res)=>{
-     console.log('v alidate reset password')
      try {
           const { code } = req.body;
-          console.log('code')
-          console.log(code)
           const {email}=req.params
-          //console.log(email)
           const user = await User.findOne({ email });
-          console.log(user)
           const Dbcode = await Code.findOne({ user: user._id });
-          console.log('from code')
-          console.log(Dbcode)
-          console.log(typeof(Dbcode.code))
-          console.log('code')
-          console.log(code)
-          console.log(typeof(code))
           if (Dbcode.code !== code) {
-            //check date expired from model code
-             console.log('fuck')
              return res.status(400).json({
                message: "Verification code is wrong..",
                success:false
@@ -348,7 +317,6 @@ const validateResetPassword=asyncHandler(async (req,res)=>{
 //change password 
 const changePassword=asyncHandler(async (req,res)=>{
      const { email, password,password_confirm } = req.body;
-     console.log(email,password,password_confirm)
      const cryptedPassword = await bcrypt.hash(password, 12);
      await User.findOneAndUpdate(
      { email },
@@ -363,8 +331,6 @@ const changePassword=asyncHandler(async (req,res)=>{
 //getUserAuth
 const getUserAuth=asyncHandler(async (req,res)=>{
      let token =req?.params?.token
-     console.log('fucking')
-     console.log(req.params.token)
      try {
           if(!token) {
                return res.status(401).json({
@@ -383,7 +349,6 @@ const getUserAuth=asyncHandler(async (req,res)=>{
           }
           let tokenInfo = await jwt.verify(token, publicKey);
           const user=await User.findById(tokenInfo.payload.id)
-          console.log(user)
           if(tokenInfo.payload.id !== user._id.toString()) {
                res.status(403).json({
                    success: false,
@@ -397,7 +362,6 @@ const getUserAuth=asyncHandler(async (req,res)=>{
                     message: "No user found with this id"
                })
           }
-          console.log('success yooww')
           return res.status(200).json({
                success:true,
                data:user

@@ -6,6 +6,7 @@ import axios from 'axios';
 import { useQueryClient } from 'react-query'
 import { Link, useNavigate } from 'react-router-dom';
 import { FormButton} from '../common/Buttons'
+import toast, { Toaster } from 'react-hot-toast';
 import Cookies from 'js-cookie';
 import { loginUser } from '../../service/api/auth/auth';
 import { 
@@ -17,34 +18,19 @@ let emailValidate={}
 let passwordValidate={}
 export const Login = () => {
   const navigate=useNavigate()
-  
   //react query 
   const queryClient = useQueryClient()
   const loginUserMutation = useMutation({
     mutationFn: loginUser,
     onSuccess: data => {
-      //set
-      console.log("sucees",data)
-      //queryClient.set
       queryClient.setQueryData(["users", data], data)
       queryClient.invalidateQueries(["users"], { exact: true })
-      alert(data.message)
-      //navigate('/')
-      //store token in local storage 
       localStorage.setItem('token',data.data.token)
       Cookies.set('token', data.data.token, { httpOnly: true });
-      //store in cookie the token using only http^
-      
       navigate('/')
-
-
-      //get response from 
-
-
-      //setCurrentPage(<Post id={data.id} />)
     },
     onError: (error)=>{
-      console.log(error)
+      toast.error(error.response.data.message);
     }
   })
   const [submet,setSubmet]=useState(false) 
@@ -92,6 +78,11 @@ export const Login = () => {
         )
          */
       }
+      
+        <Toaster position="top-right" reverseOrder={false}>
+          {/* Add any toasts you want to display when an error occurs */}
+        </Toaster>
+      
       <CustomInput 
         icon={<AiFillLock />} 
         type={'password'} 

@@ -10,6 +10,8 @@ const dotenv=require('dotenv').config()
 require('./config/dbConnect')
 const userRouter = require('./src/auth/user/user.route');
 const authRouter = require('./src/auth/auth.route');
+const swaggerDocs=require('./helper/swagger')
+const swaggerUi = require('swagger-ui-express');
 
 
 // enabling cors for selected list of hosts or origins
@@ -55,7 +57,7 @@ app.use(bodyParser.urlencoded({ extended: false }))
 
 //app.use('/api/v1',userRouter)
 app.use('/api/v1/auth',authRouter)
-
+app.use("/api/v1/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 app.listen(PORT,()=>{
      console.log(`Server is running on port ${PORT}`)

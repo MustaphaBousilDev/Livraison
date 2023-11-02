@@ -1,22 +1,16 @@
 import axios from "axios"
 
 export const loginUser=(login)=> {
-    console.log('fuck')
-    console.log(login)
     return axios
       .post("http://localhost:5000/api/v1/auth/login", login)
       .then(res => res.data)
 }
 export const createUser=(register)=> {
-    console.log('fuck')
-    console.log(register)
     return axios
       .post("http://localhost:5000/api/v1/auth/register", register)
       .then(res => res.data)
 }
 export const verifyEm=(token)=> {
-    //console.log('fuck')
-    //console.log(token)
     return axios
       .get(`http://localhost:5000/api/v1/auth/activate/${token}`)
       .then(res => res.data)
@@ -37,7 +31,6 @@ export const verifyChangePassword=(password)=>{
       .then(res => res.data)
 }
 export const logout=()=> {
-    console.log('fuck')
     return axios
       .get(`http://localhost:5000/api/v1/auth/logout/${localStorage.getItem('token')}`)
       .then(res => {

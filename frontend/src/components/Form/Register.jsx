@@ -2,10 +2,9 @@ import './login.css'
 import  {useState} from 'react'
 import CustomInput from '../common/Input'
 import { FormButton} from '../common/Buttons'
-//import {validateEmail,validatePassword,validateUsername} from '../../helpers/validations'
+import {validateEmail,validatePassword,validateUsername} from '../../helpers/validations'
 import { AiOutlineMail,AiFillLock} from 'react-icons/ai'
 import { useMutation } from 'react-query';
-import axios from 'axios';
 import { useQueryClient } from 'react-query'
 import { useNavigate } from 'react-router-dom';
 import { createUser } from '../../service/api/auth/auth';
@@ -24,18 +23,9 @@ export const Register = () => {
   const createUserMutation = useMutation({
     mutationFn: createUser,
     onSuccess: data => {
-      //set
-      console.log("sucees",data.saveUser)
-      //queryClient.set
       queryClient.setQueryData(["users", data.saveUser], data)
       queryClient.invalidateQueries(["users"], { exact: true })
       navigate('/verifyEmail')
-
-
-      //get response from 
-
-
-      //setCurrentPage(<Post id={data.id} />)
     },
     onError: (error)=>{
       console.log(error)
@@ -58,21 +48,20 @@ export const Register = () => {
     //passwordValidate=validatePassword(register.password)
     //usernameValidate=validateUsername(register.username)
     //password_confirmationValidate=validateConfirmPassword(register.password_confirmation,register.password)
-    //if there is no error in the validation we make a request to the server
-    if(!emailValidate?.error && !passwordValidate?.error && !usernameValidate?.error && !password_confirmationValidate?.error){
-      //we use the mutate function to make a request to the server
-      //registrationMutation.mutate(register);
+    if(
+      !emailValidate?.error 
+      && !passwordValidate?.error 
+      && !usernameValidate?.error 
+    ){
       createUserMutation.mutate(register);
-
     }
   }
-  //validate register change
   const handleRegisterChange = (e) => {
     const { name, value } = e.target;
     setRegister({ ...register, [name]: value });
-    //emailValidate=validateEmail(register.email)
-    //passwordValidate=validatePassword(register.password)
-    //usernameValidate=validateUsername(register.username)
+    emailValidate=validateEmail(register.email)
+    passwordValidate=validatePassword(register.password)
+    usernameValidate=validateUsername(register.username)
     //password_confirmationValidate=validateConfirmPassword(register.password_confirmation,register.password)
   };
   return (
@@ -146,7 +135,7 @@ export const Register = () => {
       <FormButton
         disabled={createUserMutation.isLoading}
         >
-        {
+        { 
           createUserMutation.isLoading ? 'Registering...' : 'Register'
         }
       </FormButton>

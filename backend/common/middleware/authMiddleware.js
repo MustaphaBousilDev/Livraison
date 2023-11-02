@@ -4,12 +4,7 @@ const jwt=require('jsonwebtoken')
 const {readPublicKey, readPrivateKey} = require('../../src/api')
 
 const authMiddleware=asyncHandler(async(req,res,next)=>{
-     console.log('from middlewaredddddd')
      let token =req?.params?.token
-     console.log(req?.cookies?.token)
-     console.log('token from cookie')
-     
-     //console.log(req.params.token)
      try {
           if(!token) {
                return res.status(401).json({
@@ -26,13 +21,14 @@ const authMiddleware=asyncHandler(async(req,res,next)=>{
                });
                return
           }
-          console.log('coming here')
           let tokenInfo = await jwt.verify(token, publicKey);
-          console.log('coming here 2')
-
-          console.log(tokenInfo.payload)
+          if(tokenInfo.exp < Date.now().valueOf() / 1000) {
+               return res.status(401).json({
+                    success: false,
+                    message: "Token Expired"
+               })
+          }
           const user=await User.findById(tokenInfo.payload.id)
-          //console.log(user)
           if(tokenInfo.payload.id !== user._id.toString()) {
                res.status(403).json({
                    success: false,
@@ -40,8 +36,6 @@ const authMiddleware=asyncHandler(async(req,res,next)=>{
                });
                return
           }
-          console.log('coming here 3')
-          // req.user = user;
           
           if(!user) {
                res.status(404).json({
@@ -58,7 +52,6 @@ const authMiddleware=asyncHandler(async(req,res,next)=>{
           })
      }
 })
-
 const isAdmin=asyncHandler(async(req,res,next)=>{
      if(req.user && (req.user.role==='admin' 
           || req.user._id.toString()===req.params.id.toString())){
@@ -68,7 +61,6 @@ const isAdmin=asyncHandler(async(req,res,next)=>{
           throw new Error('Not authorized as an admin or user is not authorized to get his own profile')
      }
 })
-
 const isEmployee=asyncHandler(async(req,res,next)=>{
      if(req.user && (req.user.role==='admin' || req.user.role==='employee')){
           next() 
@@ -77,6 +69,4 @@ const isEmployee=asyncHandler(async(req,res,next)=>{
           throw new Error('Not authorized because you are not an employee')
      }
 })
-
-
 module.exports={authMiddleware,isAdmin}
