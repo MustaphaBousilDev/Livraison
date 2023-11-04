@@ -374,6 +374,19 @@ const getUserAuth=asyncHandler(async (req,res)=>{
      }
 })
 
+
+const getUserInfo=asyncHandler(async (req,res)=>{
+     const {email}=req.body
+     console.log(email)
+     const user=await User.find({email:email})
+     if(!user) return res.status(404).json({msg:'User not found'})
+     res.status(200).json({
+          user,
+          success:true
+})
+
+})
+
 module.exports = {  
      getAllItems,
      getAccessToken,
@@ -386,5 +399,6 @@ module.exports = {
      resetPassword,
      validateResetPassword,
      changePassword,
-     getUserAuth
+     getUserAuth,
+     getUserInfo
 }

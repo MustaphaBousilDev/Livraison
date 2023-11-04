@@ -2,12 +2,14 @@ import './login.css'
 import  {useState} from 'react'
 import CustomInput from '../common/Input'
 import { FormButton} from '../common/Buttons'
-import {validateEmail,validatePassword,validateUsername} from '../../helpers/validations'
+import {validateConfirmPassword, validateEmail,validatePassword,validateUsername} from '../../helpers/validations'
 import { AiOutlineMail,AiFillLock} from 'react-icons/ai'
 import { useMutation } from 'react-query';
 import { useQueryClient } from 'react-query'
 import { useNavigate } from 'react-router-dom';
 import { createUser } from '../../service/api/auth/auth';
+import { useForm, FormProvider } from "react-hook-form";
+
 
 
 let emailValidate={}
@@ -44,10 +46,11 @@ export const Register = () => {
   const handleSubmit = (e) => {
     e.preventDefault()
     setSubmet(true)
-    //emailValidate=validateEmail(register.email)
-    //passwordValidate=validatePassword(register.password)
-    //usernameValidate=validateUsername(register.username)
-    //password_confirmationValidate=validateConfirmPassword(register.password_confirmation,register.password)
+    emailValidate=validateEmail(register.email)
+    passwordValidate=validatePassword(register.password)
+    usernameValidate=validateUsername(register.username)
+    password_confirmationValidate=validateConfirmPassword(register.password_confirmation,register.password)
+    console.log(register)
     if(
       !emailValidate?.error 
       && !passwordValidate?.error 
@@ -59,12 +62,16 @@ export const Register = () => {
   const handleRegisterChange = (e) => {
     const { name, value } = e.target;
     setRegister({ ...register, [name]: value });
+    console.log(submet)
+    
     emailValidate=validateEmail(register.email)
     passwordValidate=validatePassword(register.password)
     usernameValidate=validateUsername(register.username)
-    //password_confirmationValidate=validateConfirmPassword(register.password_confirmation,register.password)
+    password_confirmationValidate=validateConfirmPassword(register.password_confirmation,register.password)
+    console.log(password_confirmationValidate?.error)
   };
   return (
+    <>
     <form onSubmit={handleSubmit} 
     className={`my-4 flex flex-col gap-4 `}>
       <CustomInput 
@@ -74,17 +81,12 @@ export const Register = () => {
         id={'username'}
         placeholder={'Enter your Name'} 
         onChange={handleRegisterChange}
-        className={'text-white'}
+        className={`bg-gray-900 border-solid text-white`}
+        submit={submet}
+        validate={usernameValidate?.error}
+        errorMessage={usernameValidate?.message}
       />
-      {
-        /**
-         * submet && usernameValidate?.error && (
-            <span className='text-red-500 text-sm w-[80%] flex mx-auto'>
-              {usernameValidate.message}
-            </span>
-        )
-         */
-      }
+      
       <CustomInput 
         icon={<AiOutlineMail />} 
         type={'text'} 
@@ -92,17 +94,11 @@ export const Register = () => {
         id={'email'}
         placeholder={'Enter your Email'} 
         onChange={handleRegisterChange}
-        className={'text-white'}
+        className={`bg-gray-900 border-solid  text-white`}
+        submit={submet}
+        validate={emailValidate?.error}
+        errorMessage={emailValidate?.message}
       />
-      {
-        /**
-         * submet && emailValidate?.error && (
-            <span className='text-red-500 text-sm w-[80%] flex mx-auto'>
-              {emailValidate.message}
-            </span>
-        )
-         */
-      }
       <CustomInput 
         icon={<AiFillLock />} 
         type={'password'} 
@@ -110,17 +106,11 @@ export const Register = () => {
         id={'password'}
         placeholder={'●●●●●●●●●●'} 
         onChange={handleRegisterChange}
-        className={'text-white'}
+        className={`bg-gray-900 border-solid  text-white`}
+        submit={submet}
+        validate={passwordValidate?.error}
+        errorMessage={passwordValidate?.message}
       />
-      {
-        /**
-         * submet && passwordValidate?.error && (
-            <span className='text-red-500 text-sm w-[80%] flex mx-auto'>
-              {passwordValidate.message}
-            </span>
-        )
-         */
-      }
       <CustomInput 
         icon={<AiFillLock />} 
         type={'password'} 
@@ -128,8 +118,10 @@ export const Register = () => {
         id={'password_confirmation'}
         placeholder={'●●●●●●●●●●'} 
         onChange={handleRegisterChange}
-        className={'text-white'}
-        
+        className={`bg-gray-900 border-solid  text-white`}
+        submit={submet}
+        validate={password_confirmationValidate?.error}
+        errorMessage={password_confirmationValidate?.message}
       />
       
       <FormButton
@@ -140,5 +132,6 @@ export const Register = () => {
         }
       </FormButton>
     </form>
+    </>
   )
 }

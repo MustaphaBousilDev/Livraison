@@ -12,7 +12,7 @@ export const validateEmail = (email) => {
     }
     return {
         error: false,
-        message: "",
+        message: "Success email",
     };
 }
 
@@ -60,7 +60,7 @@ export const validatePassword = (password) => {
     //if password has letters, numbers and special characters error
     if (password.match(/^[a-zA-Z0-9!@#$%^&*]+$/)) return {
         error: false,
-        message: "",
+        message: "Success password",
     };
 }
 
@@ -77,7 +77,7 @@ export const validateConfirmPassword = (confirmPassword, password) => {
     };
     return {
         error: false,
-        message: "",
+        message: "Success confirm password",
     };
 }
 
@@ -87,13 +87,13 @@ export const validateUsername = (username) => {
         error: true,
         message: "Username cannot be empty",
     };
-    //username valid if has only letters in the first 4 characters and number is optional
-    if (!username.match(/^[a-zA-Z]{1,4}[0-9]*$/)) return {
+    //username only characters lowercase  min 3 max 15
+    if (!username.match(/^[a-z]{3,15}$/)) return {
         error: true,
-        message: "Username should have only letters in the first 4 characters and number is optional",
+        message: " username only characters lowercase  min 3 max 15",
     };
     return {
         error: false,
-        message: "",
+        message:  "Success username",
     }; 
 }

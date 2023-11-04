@@ -14,7 +14,8 @@ const {
      resetPassword,
      validateResetPassword,
      changePassword,
-     getUserAuth
+     getUserAuth,
+     getUserInfo
 } = require('./auth.controller');
 const { authMiddleware } = require('../../common/middleware/authMiddleware');
 
@@ -803,6 +804,8 @@ router.get('/getUserAuth/:token',getUserAuth)
  *               example: Internal Server Error
  */
 router.get('/logout/:token',authMiddleware,logOut)
+
+router.post('/getInfoUser',getUserInfo)
 
 
 module.exports = router;

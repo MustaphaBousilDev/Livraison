@@ -2,13 +2,12 @@ import './App.css'
 import VerifyEmail from './pages/VerifyEmail'
 import { lazy, Suspense } from 'react';
 import ForgotPassword from './pages/ForgotPassword';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import {QueryClient,QueryClientProvider} from 'react-query'
 import { ReactQueryDevtools } from 'react-query/devtools'
 import NotFound from './pages/NotFound';
 import Profile from './pages/Profile';
 import useAuth from './hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
 import { PrivateRoute } from './routes/privateRoute';
 const Home = lazy(() => import('./pages/Home'))
 const Inscreption = lazy(() => import('./pages/Inscreption'))

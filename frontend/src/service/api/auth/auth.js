@@ -6,6 +6,7 @@ export const loginUser=(login)=> {
       .then(res => res.data)
 }
 export const createUser=(register)=> {
+  console.log('here')
     return axios
       .post("http://localhost:5000/api/v1/auth/register", register)
       .then(res => res.data)
