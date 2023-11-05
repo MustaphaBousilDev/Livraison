@@ -38,7 +38,7 @@ export const validatePassword = (password) => {
         message: "Password should contain at least one letter and one special character",
     };
     //if password has only special characters error
-    if (password.match(/^[!@#$%^&*]+$/)) return {
+    if (password.match(/^[!@#$%^&_*]+$/)) return {
         error: true,
         message: "Password should contain at least one letter and one number",
     };
@@ -58,7 +58,7 @@ export const validatePassword = (password) => {
         message: "Password should contain at least one letter",
     };
     //if password has letters, numbers and special characters error
-    if (password.match(/^[a-zA-Z0-9!@#$%^&*]+$/)) return {
+    if (password.match(/^[a-zA-Z0-9!@#$_%^&*]+$/)) return {
         error: false,
         message: "Success password",
     };

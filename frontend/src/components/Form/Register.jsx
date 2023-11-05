@@ -2,37 +2,14 @@ import './login.css'
 import  {useState} from 'react'
 import CustomInput from '../common/Input'
 import { FormButton} from '../common/Buttons'
-import {validateConfirmPassword, validateEmail,validatePassword,validateUsername} from '../../helpers/validations'
+import {validateConfirmPassword} from '../../helpers/validations'
 import { AiOutlineMail,AiFillLock} from 'react-icons/ai'
-import { useMutation } from 'react-query';
-import { useQueryClient } from 'react-query'
-import { useNavigate } from 'react-router-dom';
-import { createUser } from '../../service/api/auth/auth';
-import { useForm, FormProvider } from "react-hook-form";
-
-
-
-let emailValidate={}
-let passwordValidate={}
-let usernameValidate={} 
+import {RegisterService} from './register'
 let password_confirmationValidate={}
 
 //new QueyClient is a new instance of QueryClient we use it to make request to the server
 export const Register = () => {
-  const navigate=useNavigate()
-  //react query 
-  const queryClient = useQueryClient()
-  const createUserMutation = useMutation({
-    mutationFn: createUser,
-    onSuccess: data => {
-      queryClient.setQueryData(["users", data.saveUser], data)
-      queryClient.invalidateQueries(["users"], { exact: true })
-      navigate('/verifyEmail')
-    },
-    onError: (error)=>{
-      console.log(error)
-    }
-  })
+  const registerService = RegisterService();
   //---------------------------------------------------------------
   const [submet,setSubmet]=useState(false)  
   const [register,setRegister]=useState({
@@ -41,34 +18,64 @@ export const Register = () => {
     password:'',
     password_confirmation:''
   })
+  const [registerStatus,setRegisterStatus]=useState({
+    email:{
+      error:false,
+      message:''
+    },
+    password:{
+      error:false,
+      message:''
+    },
+    username:{
+      error:false,
+      message:''
+    },
+  })
   
   
   const handleSubmit = (e) => {
     e.preventDefault()
     setSubmet(true)
-    emailValidate=validateEmail(register.email)
-    passwordValidate=validatePassword(register.password)
-    usernameValidate=validateUsername(register.username)
+    const isValid = registerService.validateCredentials(register.email,register.password,register.username);
+    setRegisterStatus({
+      ...registerStatus,
+      email: {error: isValid[0].email.error,message: isValid[0].email.message,},
+      password: {error: isValid[0].password.error,message: isValid[0].password.message,},
+      username: {error: isValid[0].username.error,message: isValid[0].username.message,},
+    });
+    
     password_confirmationValidate=validateConfirmPassword(register.password_confirmation,register.password)
-    console.log(register)
-    if(
-      !emailValidate?.error 
-      && !passwordValidate?.error 
-      && !usernameValidate?.error 
-    ){
-      createUserMutation.mutate(register);
+    if (isValid && !password_confirmationValidate?.error) {
+      registerService.createUserMutation.mutate(register);
     }
   }
   const handleRegisterChange = (e) => {
     const { name, value } = e.target;
     setRegister({ ...register, [name]: value });
-    console.log(submet)
-    
-    emailValidate=validateEmail(register.email)
-    passwordValidate=validatePassword(register.password)
-    usernameValidate=validateUsername(register.username)
-    password_confirmationValidate=validateConfirmPassword(register.password_confirmation,register.password)
-    console.log(password_confirmationValidate?.error)
+    const isValid = registerService.validateCredentials(
+      register.email,
+      register.password,
+      register.username
+    );
+    console.log(isValid[0].email)
+    setRegisterStatus({
+      ...registerStatus,
+      email: {
+        error: isValid[0].email.error,
+        message: isValid[0].email.message,
+      },
+      password: {
+        error: isValid[0].password.error,
+        message: isValid[0].password.message,
+      },
+      username: {
+        error: isValid[0].username.error,
+        message: isValid[0].username.message,
+      },
+    });
+    //password_confirmationValidate=validateConfirmPassword(register.password_confirmation,register.password)
+   
   };
   return (
     <>
@@ -83,8 +90,8 @@ export const Register = () => {
         onChange={handleRegisterChange}
         className={`bg-gray-900 border-solid text-white`}
         submit={submet}
-        validate={usernameValidate?.error}
-        errorMessage={usernameValidate?.message}
+        validate={registerStatus.username.error}
+        errorMessage={registerStatus.username.message}
       />
       
       <CustomInput 
@@ -96,8 +103,8 @@ export const Register = () => {
         onChange={handleRegisterChange}
         className={`bg-gray-900 border-solid  text-white`}
         submit={submet}
-        validate={emailValidate?.error}
-        errorMessage={emailValidate?.message}
+        validate={registerStatus.email.error}
+        errorMessage={registerStatus.email.message}
       />
       <CustomInput 
         icon={<AiFillLock />} 
@@ -108,8 +115,8 @@ export const Register = () => {
         onChange={handleRegisterChange}
         className={`bg-gray-900 border-solid  text-white`}
         submit={submet}
-        validate={passwordValidate?.error}
-        errorMessage={passwordValidate?.message}
+        validate={registerStatus.password.error}
+        errorMessage={registerStatus.password.message}
       />
       <CustomInput 
         icon={<AiFillLock />} 
@@ -125,10 +132,10 @@ export const Register = () => {
       />
       
       <FormButton
-        disabled={createUserMutation.isLoading}
+        disabled={ registerService.createUserMutation.isLoading}
         >
         { 
-          createUserMutation.isLoading ? 'Registering...' : 'Register'
+           registerService.createUserMutation.isLoading ? 'Registering...' : 'Register'
         }
       </FormButton>
     </form>
