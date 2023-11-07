@@ -9,10 +9,7 @@ import { FormButton} from '../common/Buttons'
 import toast, { Toaster } from 'react-hot-toast';
 import Cookies from 'js-cookie';
 import { loginUser } from '../../service/api/auth/auth';
-import { 
-  AiOutlineMail,
-  AiFillLock,
-} from 'react-icons/ai'
+import {AiOutlineMail,AiFillLock} from 'react-icons/ai'
 //import { validateEmail, validatePassword } from '../../helpers/validations'
 let emailValidate={}
 let passwordValidate={}

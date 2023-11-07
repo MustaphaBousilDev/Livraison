@@ -1,50 +1,59 @@
-const inputs 
-    =[
-        {
-          uuid:1,
-          id: 'username',
-          name: "username",
-          type: "text",
-          placeholder: "Username",
-          errorMessage:"Username should be 3-16 ",
-          label: "Username",
-          pattern: "^[A-Za-z0-9]{3,16}$",
-          required: true,
-        },
-        {
-          uuid:2,
-          id: 'email',
-          name: "email",
-          type: "email",
-          placeholder: "Email",
-          errorMessage: "It should ",
-          label: "Email",
-          required: true,
-        },
-        {
-          uuid:3,
-          id: 'password',
-          name: "password",
-          type: "password",
-          placeholder: "Password",
-          errorMessage:
-            "Password, 1 number and 1 special character!",
-          label: "Password",
-          pattern: `^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,20}$`,
-          required: true,
-        },
-        {
-          uuid:4,
-          id: 'confirmPassword',
-          name: "confirmPassword",
-          type: "password",
-          placeholder: "Confirm Password",
-          errorMessage: "Passwords don't match!",
-          label: "Confirm Password",
-          pattern: `^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,20}$`,
-          required: true,
-        },
-      ];
+import { AiFillLock, AiOutlineMail } from "react-icons/ai"
 
+const registerInput = [
+  {
+    icon: AiOutlineMail,
+    type:'text',
+    name:'username',
+    id:'username',
+    placeholder:'Enter your Name',
+    onchange:()=>{},
+    className:'bg-gray-900 border-solid text-white',
+    submit:false,
+    validate:false,
+    errorMessage:'',
+    key:1
+  },
+  {
+    icon: AiOutlineMail ,
+    type:'text',
+    name:'email',
+    id:'email',
+    placeholder:'Enter your Email',
+    onchange:()=>{},
+    className:'bg-gray-900 border-solid text-white',
+    submit:false,
+    validate:false,
+    errorMessage:'',
+    key:2
+  },
+  {
+    icon: AiFillLock ,
+    type:'password',
+    name:'password',
+    id:'password',
+    placeholder:'●●●●●●●●●●',
+    onchange:()=>{},
+    className:'bg-gray-900 border-solid text-white',
+    submit:false,
+    validate:false,
+    errorMessage:'',
+    key:3
+  },
+  {
+    icon: AiFillLock,
+    type:'password',
+    name:'password_confirmation',
+    id:'password_confirmation',
+    placeholder:'●●●●●●●●●●',
+    onchange:()=>{},
+    className:'bg-gray-900 border-solid text-white',
+    submit:false,
+    validate:false,
+    errorMessage:'',
+    key:4
+  },
+]
 
-export default inputs;
+export default registerInput
+
