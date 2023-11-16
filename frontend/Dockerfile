@@ -5,7 +5,7 @@ FROM node:alpine as development
 WORKDIR /app/frontend
 
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
-COPY package*.json ./
+COPY frontend/package*.json ./
 
 RUN npm install
 

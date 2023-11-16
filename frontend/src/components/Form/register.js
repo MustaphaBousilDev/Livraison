@@ -1,10 +1,12 @@
-import { useMutation, useQueryClient } from 'react-query'
-import { useNavigate } from 'react-router-dom'
-import { createUser } from '../../service/api/auth/auth'
+//import { useMutation, useQueryClient } from 'react-query'
+//import { useNavigate } from 'react-router-dom'
+//import { createUser } from '../../service/api/auth/auth'
 import {validateConfirmPassword} from '../../helpers/validations'
 import { useState } from 'react'
 import { validateCredentials } from '../../helpers/validations/register.credentials'
-export const RegisterService = () => {
+import useMutateHook from '../../hooks/useQuery'
+import {RegisterAPI} from '../../service/query/auth'
+export const RegisterService = () => { 
   const [submet, setSubmet] = useState(false);
   const [register, setRegister] = useState({username: '',email: '',password: '',password_confirmation: ''});
   const [registerStatus, setRegisterStatus] = useState({
@@ -42,21 +44,22 @@ export const RegisterService = () => {
     });
   };
 
-  const navigate=useNavigate()
+  //const navigate=useNavigate()
   //react query 
-  const queryClient = useQueryClient()
-  const createUserMutation = useMutation({
-    mutationFn: createUser,
-    onSuccess: data => {
-      //using cache to save user data
-      queryClient.setQueryData(["users", data.saveUser], data)
-      queryClient.invalidateQueries(["users"], { exact: true })
-      navigate('/verifyEmail')
-    },
-    onError: (error)=>{
-      console.log(error)
-    }
-  })
+  //const queryClient = useQueryClient() 
+  // const createUserMutation = useMutation({
+  //   mutationFn: createUser,
+  //   onSuccess: data => {
+  //     //using cache to save user data
+  //     queryClient.setQueryData(["users", data.saveUser], data)
+  //     queryClient.invalidateQueries(["users"], { exact: true })
+  //     navigate('/verifyEmail')
+  //   },
+  //   onError: (error)=>{
+  //     console.log(error)
+  //   }
+  // })
+  const createUserMutation=useMutateHook(RegisterAPI())
 
   //validate credentials
   return {
