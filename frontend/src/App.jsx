@@ -33,7 +33,7 @@ function App() {
       }>
         <Routes>
           <Route path='/' element={<Home />} />
-          <Route 
+          {/* <Route 
             path='/inscription' 
             element={
               isAuthenticated 
@@ -52,7 +52,7 @@ function App() {
           />
           <Route path='/verifyEmail/:token?' element={<VerifyEmail />} />
           <Route path='/forgotPassword' element={<ForgotPassword/>} />
-          <Route path="*" element={<NotFound />} />
+          <Route path="*" element={<NotFound />} /> */}
         </Routes>
       </Suspense>
       </Router>
