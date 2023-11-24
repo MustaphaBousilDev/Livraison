@@ -7,7 +7,7 @@ const Home = ( )=> {
 
   
   return (
-    <button onClick={()=>setActive(true)}>Homed</button>
+    <p>kdfkjkdfjkjdkf</p>
   )
 }
 

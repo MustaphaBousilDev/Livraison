@@ -3,8 +3,6 @@ import VerifyEmail from './pages/VerifyEmail'
 import { lazy, Suspense } from 'react';
 import ForgotPassword from './pages/ForgotPassword';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import {QueryClient,QueryClientProvider} from 'react-query'
-import { ReactQueryDevtools } from 'react-query/devtools'
 import NotFound from './pages/NotFound';
 import Profile from './pages/Profile';
 import useAuth from './hooks/useAuth';
@@ -22,9 +20,9 @@ function App() {
     );
   }
 
-  const queryClient = new QueryClient()
+ 
   return (
-    <QueryClientProvider client={queryClient}>
+    
       <Router>
       <Suspense fallback={
         <div className='w-screen h-screen flex justify-center items-center'>
@@ -56,8 +54,8 @@ function App() {
         </Routes>
       </Suspense>
       </Router>
-      <ReactQueryDevtools/>
-    </QueryClientProvider>
+      
+   
   )
 }
 

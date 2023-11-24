@@ -5,7 +5,7 @@ import {validateConfirmPassword} from '../../helpers/validations'
 import { useState } from 'react'
 import { validateCredentials } from '../../helpers/validations/register.credentials'
 import useMutateHook from '../../hooks/useQuery'
-import {RegisterAPI} from '../../service/query/auth'
+// import {RegisterAPI} from '../../service/query/auth'
 export const RegisterService = () => { 
   const [submet, setSubmet] = useState(false);
   const [register, setRegister] = useState({username: '',email: '',password: '',password_confirmation: ''});
@@ -59,11 +59,11 @@ export const RegisterService = () => {
   //     console.log(error)
   //   }
   // })
-  const createUserMutation=useMutateHook(RegisterAPI())
+  // const createUserMutation=useMutateHook(RegisterAPI())
 
   //validate credentials
   return {
-    createUserMutation,
+    // createUserMutation,
     submet,
     register,
     registerStatus,
