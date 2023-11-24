@@ -6,7 +6,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import NotFound from './pages/NotFound';
 import Profile from './pages/Profile';
 import useAuth from './hooks/useAuth';
-import { PrivateRoute } from './routes/privateRoute';
 const Home = lazy(() => import('./pages/Home'))
 const Inscreption = lazy(() => import('./pages/Inscreption'))
 import Redirect from './components/Redirect';
